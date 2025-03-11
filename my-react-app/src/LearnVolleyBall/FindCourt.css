@@ -1,0 +1,31 @@
+.find-court {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #f1f8e9;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .find-court h2 {
+    color: #558b2f;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #558b2f;
+    padding-bottom: 10px;
+  }
+  
+  .find-court p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  
+  .download-app {
+    color: #388e3c;
+    font-weight: bold;
+    text-decoration: underline;
+    transition: color 0.3s;
+  }
+  
+  .download-app:hover {
+    color: #1b5e20;
+  }
+  

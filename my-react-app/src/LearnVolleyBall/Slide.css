@@ -1,0 +1,52 @@
+.app-container {
+    font-family: 'Roboto', sans-serif;
+    background: lightgreen;
+    min-width: 100vw;
+    min-height: 100vh;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+  }
+  
+  .app-header1 {
+    background-color: #333;
+    color: white;
+    padding: 20px;
+    text-align: center;
+    width: 100%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    font-size: 1rem;
+    font-weight: bold;
+  }
+
+  .app-header1 h1 {
+    color: white;
+  }
+  
+  .app-main {
+    width: 90%;
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  }
+  
+  .app-footer {
+    background-color: #222;
+    color: white;
+    padding: 15px;
+    text-align: center;
+    width: 100%;
+    position: fixed;
+    bottom: 0;
+    box-shadow: 0 -4px 8px rgba(0, 0, 0, 0.3);
+  }
+
+  .app-footer p {
+    color: white;
+  }
+  

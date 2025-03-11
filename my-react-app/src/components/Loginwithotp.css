@@ -1,0 +1,65 @@
+.Loginwithotp-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #f7f7f7; /* Light Gray background */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+.Loginwithotp-form-container {
+    width: 100%;
+    max-width: 400px;
+    margin: 20px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+.Loginwithotp-form-container h2 {
+    text-align: center;
+    color: #333;
+}
+
+.Loginwithotp-form-container form {
+    margin-top: 20px;
+}
+
+.Loginwithotp-form-container label {
+    display: block;
+    margin-bottom: 6px;
+    color: #333;
+}
+
+.Loginwithotp-form-container input[type="email"],
+.Loginwithotp-form-container input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+.Loginwithotp-form-container button[type="submit"] {
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 4px;
+    background-color: rgb(243, 234, 223);
+    color: black;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.Loginwithotp-form-container button[type="submit"]:hover {
+    background-color: rgb(243, 234, 223);
+}
+
+.Loginwithotp-form-container button[type="submit"]:focus {
+    outline: none;
+}

@@ -1,0 +1,131 @@
+.background-wrapper {
+    background-image: url('./Background.jpg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
+    width: 100vw;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative; /* Important for positioning children like shoplink */
+}
+
+.shoplink {
+    position: absolute;
+    top: 20px;
+    right: 20px; 
+}
+
+.shoplink h1 {
+    font-size: 20px;
+}
+
+.underline {
+    text-decoration: none;
+    color: #333;
+}
+.m1 {
+    text-align:left;
+    font-size: 0.8rem;
+    margin-left: 10px;
+    color: red;
+}
+.center {
+    text-align: center;
+}
+
+.login-container {
+    background-color: rgba(255, 255, 255, 0.85);
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+    width: 400px;
+}
+
+h2 {
+    font-size: 24px;
+    margin-bottom: 20px;
+    text-align: center;
+    font-weight: bold;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    padding: 10px;
+    background-color: #f9f9f9;
+}
+
+.input-group input {
+    border: none;
+    outline: none;
+    width: 100%;
+    font-size: 16px;
+    background-color: transparent;
+    margin-left: 10px;
+}
+
+.input-group .icon {
+    display: flex;
+    align-items: center;
+}
+
+.options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    font-size: 14px;
+}
+
+.options a {
+    color: #1ce057;
+    opacity: 0.8;
+    text-decoration: none;
+    transition: color 0.3s;
+}
+
+.options a:hover {
+    color: #1ce057;
+    opacity: 1;
+}
+
+.login-btn {
+    width: 100%;
+    padding: 10px;
+    border: none;
+    border-radius: 5px;
+    background-color: #1ce057;
+    opacity: 0.8;
+    color: white;
+    font-size: 18px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.login-btn:hover {
+    background-color: #1ce057;
+    opacity: 1;
+}
+
+.register-link {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 14px;
+}
+
+.register-link a {
+    color: #1ce057;
+    opacity: 0.8;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+}
+
+.register-link a:hover {
+    color: #1ce057;
+    opacity: 1;
+}

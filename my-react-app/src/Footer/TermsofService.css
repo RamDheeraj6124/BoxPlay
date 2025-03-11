@@ -1,0 +1,42 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f9f9f9; /* Light background for contrast */
+    min-width: 100vw;
+    min-height: 100vh;
+}
+
+.terms-container {
+    max-width: 100%;
+    min-height: 120%;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff; /* White background for content */
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+    background-color: lightgreen;
+}
+
+h1 {
+    text-align: center;
+    color: #333; /* Dark text for main heading */
+    font-size: 24px; /* Reduced font size */
+    margin-bottom: 20px;
+}
+
+.term-section {
+    margin-bottom: 20px; /* Space between sections */
+}
+
+h2 {
+    color: #555; /* Medium gray for section headings */
+    font-size: 18px; /* Smaller font size */
+    margin-bottom: 10px;
+}
+
+p {
+    color: #333; /* Dark text for content */
+    line-height: 1.5; /* Improved line height for readability */
+    margin: 0; /* Remove default margin */
+}

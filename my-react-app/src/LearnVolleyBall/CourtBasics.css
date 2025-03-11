@@ -1,0 +1,20 @@
+.court-basics {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #fce4ec;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .court-basics h2 {
+    color: #c2185b;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #c2185b;
+    padding-bottom: 10px;
+  }
+  
+  .court-basics p {
+    font-size: 1.2rem;
+    line-height: 1.6;
+  }
+  

@@ -1,0 +1,13 @@
+body, html, #root {
+  font-family: Arial, sans-serif;
+  background-size: cover;
+}
+
+.App {
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+

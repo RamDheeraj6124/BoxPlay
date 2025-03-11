@@ -1,0 +1,25 @@
+.volleyball-rules {
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #e0f7fa;
+    border-radius: 8px;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+  }
+  
+  .volleyball-rules h2 {
+    color: #00796b;
+    font-size: 1.8rem;
+    border-bottom: 2px solid #00796b;
+    padding-bottom: 10px;
+  }
+  
+  .volleyball-rules ul {
+    list-style-type: circle;
+    padding-left: 20px;
+  }
+  
+  .volleyball-rules li {
+    margin-bottom: 10px;
+    font-size: 1.1rem;
+  }
+  

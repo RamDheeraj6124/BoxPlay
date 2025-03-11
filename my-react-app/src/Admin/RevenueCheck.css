@@ -1,0 +1,36 @@
+.rc-revenue-check {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.rc-revenue-check h1 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 10px;
+}
+
+.rc-revenue-check h2 {
+    font-size: 20px;
+    color: #555;
+    margin: 15px 0 5px;
+}
+
+.rc-revenue-check ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.rc-revenue-check li {
+    font-size: 16px;
+    color: #666;
+    margin: 5px 0;
+}
+
+.rc-revenue-check .rc-pie-chart {
+    margin-top: 20px;
+    max-width: 600px; /* Set a max width for the pie chart */
+    margin-left: auto;
+    margin-right: auto; /* Center the chart */
+}

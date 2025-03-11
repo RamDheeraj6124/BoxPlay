@@ -1,0 +1,46 @@
+
+  
+  .venue-section {
+    padding: 20px;
+    width: 100vw;
+    min-height: 100vh; /* Full viewport height */
+    background-color: lightgreen;
+  }
+  
+  .venue-header2 {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .venue-heading2 {
+    color: #333;
+    font-size: 24px;
+    font-weight: bold;
+  }
+  
+  .view-all {
+    text-decoration: none;
+    color: #333;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  
+  .venue-grid2 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 1 row, 3 cards */
+    gap: 20px;
+    margin-top: 20px;
+  }
+  
+  @media (max-width: 768px) {
+    .venue-grid2 {
+      grid-template-columns: repeat(2, 1fr); /* 2 columns for medium screens */
+    }
+  }
+  
+  @media (max-width: 480px) {
+    .venue-grid2 {
+      grid-template-columns: 1fr; /* 1 column for small screens */
+    }
+  }

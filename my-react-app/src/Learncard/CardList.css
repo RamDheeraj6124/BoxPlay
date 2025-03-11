@@ -1,0 +1,30 @@
+/* CardList.css */
+.card-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); /* 3 cards per row */
+    gap: 20px; /* Space between the cards */
+    padding: 20px;
+    justify-content: center; /* Center the cards horizontally */
+    max-width: 1200px; /* Ensure the card layout has a max width */
+    margin: 0 auto; /* Center the grid container on the page */
+    background-color: #f7f7f7 transparent; /* Background color to match the surrounding page */
+
+  }
+
+  .read-more {
+    display: block;
+    margin: 20px auto;
+    padding: 10px 20px;
+    background-color: lightgreen;
+    opacity:0.8;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 20%;
+  }
+  
+  .read-more:hover {
+    background-color: lightgreen;
+  }

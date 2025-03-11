@@ -1,0 +1,51 @@
+/* Individual venue card styling */
+.venue-card2 {
+    min-width: 280px;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    display: inline-block; /* Ensure cards align in a row */
+    position: relative;
+  }
+  
+  .venue-card2:hover {
+    transform: scale(1.03);
+    box-shadow: 3px 3px 12px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Venue image styling */
+  .venue-image2 {
+    width: 100%;
+    height: 180px;
+    object-fit: cover;
+  }
+  
+  /* Venue details container */
+  .venue-details2 {
+    padding: 16px;
+    text-align: left;
+  }
+  
+  .venue-details2 h3 {
+    font-size: 20px;
+    font-weight: bold;
+    margin: 0;
+    color: #333;
+  }
+  
+  .venue-details2 p {
+    font-size: 14px;
+    color: gray;
+    margin: 4px 0 12px;
+  }
+
+  .vcbutton a{
+    text-decoration: none;
+    color: #333;
+  }
+
+  .vcbutton {
+    width: 120px;
+  }

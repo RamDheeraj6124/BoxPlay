@@ -1,0 +1,120 @@
+.article-card-container {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-image: url('./LearnImage2.jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed; /* Fix the background image */
+    background-size: cover; /* Cover the entire container */
+    min-height: 100vh;
+    width: 100vw;
+    padding: 20px;
+    position: relative; /* Make sure the container is positioned */
+  }
+
+  .article-card-container2 {
+    display: flex;
+    justify-content: center; /* Center the article card */
+    align-items: center;
+    flex-direction: column; /* Align items in a column */
+  }
+  
+  .venue-heading {
+    position: absolute; /* Use absolute positioning */
+    top: 20px; /* Adjust the top position */
+    left: 20px; /* Adjust the left position */
+    padding: 10px; /* Add some padding */
+    font-size: 24px; /* Adjust font size as needed */
+    color: white; /* Adjust color if desired */
+    z-index: 2; /* Ensure it's above other elements */
+  }
+  
+  .article-card {
+    position: relative;
+    margin-top: 10%;
+    background: #fff;
+    opacity: 0.9;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    max-width: 800px;
+    min-height: 300px;
+    margin-bottom: 120px;
+    width: 100%;
+    display: flex;
+    align-items: center;
+    transition: all 0.5s ease-in-out;
+  }
+  
+  .article-content {
+    padding: 20px;
+    flex: 1;
+    text-align: center;
+  }
+  
+  .article-title {
+    font-size: 36px;
+    font-weight: bold;
+    color: #333;
+    margin-bottom: 10px;
+  }
+  
+  .article-meta {
+    font-size: 14px;
+    color: #22b358;
+    margin-bottom: 15px;
+  }
+  
+  .article-description {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+    width: 700px;
+    margin-left: 30px;
+  }
+  
+  .read-more-btn {
+    background-color: #22b358;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 18px;
+    border-radius: 5px;
+    cursor: pointer;
+    text-decoration: none;
+  }
+  
+  .read-more-btn:hover {
+    background-color: #1f9f49;
+  }
+  
+  .prev-btn,
+  .next-btn {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: #22b358;
+    color: white;
+    border: none;
+    padding: 15px;
+    font-size: 24px;
+    cursor: pointer;
+    z-index: 1;
+    transition: background-color 0.3s ease;
+    width: 8%;
+    border-radius: 10px;
+  }
+  
+  .prev-btn {
+    left: -25px; /* Align to the left outside the card */
+  }
+  
+  .next-btn {
+    right: -25px; /* Align to the right outside the card */
+  }
+  
+  .prev-btn:hover,
+  .next-btn:hover {
+    background-color: #1f9f49;
+  }

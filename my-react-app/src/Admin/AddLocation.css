@@ -1,0 +1,79 @@
+/* AddLocation.css */
+
+#al-container {
+    padding: 20px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+  }
+  
+  #al-title {
+    font-size: 24px;
+    margin-bottom: 20px;
+    font-weight: bold;
+  }
+  
+  #al-form {
+    margin-bottom: 30px;
+  }
+  
+  label {
+    display: block;
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+  
+  input[type="text"] {
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 16px;
+  }
+  
+  #al-submit-button {
+    padding: 10px 15px;
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  
+  #al-submit-button:hover {
+    background-color: #0056b3;
+  }
+  
+  #al-existing-title {
+    font-size: 24px;
+    margin-top: 30px;
+    font-weight: bold;
+  }
+  
+  #al-list {
+    list-style-type: none;
+    padding: 0;
+  }
+  
+  #al-list li {
+    padding: 15px;
+    background-color: #fff;
+    margin-bottom: 10px;
+    border-radius: 4px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  }
+  
+  #al-list h3 {
+    margin: 0;
+    font-size: 18px;
+    font-weight: normal;
+  }
+  
+  #al-no-locations-message {
+    color: #777;
+    font-style: italic;
+    text-align: center;
+  }
+  

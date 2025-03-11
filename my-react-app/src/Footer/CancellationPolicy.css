@@ -1,0 +1,53 @@
+body {
+    margin: 0;
+    padding: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4; /* Light grey background */
+}
+
+.cancellation-policy {
+    max-width: 800px;
+    margin: 20px auto;
+    padding: 20px;
+    background-color: #ffffff; /* White background for content */
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+    animation: fade-in 0.6s ease-out;
+}
+
+.title {
+    text-align: center;
+    color: #333; /* Dark text color */
+    font-size: 2em; /* Increased title size */
+    margin-bottom: 20px;
+}
+
+.policy-text {
+    color: #555; /* Slightly lighter text color */
+    line-height: 1.6; /* Improved line height for readability */
+    font-size: 1.1em; /* Slightly larger font size */
+    margin-bottom: 20px; /* Space between paragraphs */
+    animation: slide-in 0.6s ease-out;
+}
+
+/* Fade-in animation */
+@keyframes fade-in {
+    from {
+        opacity: 0;
+    }
+    to {
+        opacity: 1;
+    }
+}
+
+/* Slide-in animation for paragraphs */
+@keyframes slide-in {
+    from {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}

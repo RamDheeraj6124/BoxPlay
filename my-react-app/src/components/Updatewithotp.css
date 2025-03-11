@@ -1,0 +1,80 @@
+.Updatewithotp-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #f7f7f7; /* Light background color */
+}
+
+.Updatewithotp-form-container {
+    width: 350px; /* Fixed width for forms */
+    margin: 0 20px; /* Margin between form containers */
+    padding: 20px; /* Padding inside form containers */
+    background-color: #fff; /* White background for forms */
+    border-radius: 8px; /* Rounded corners */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Light shadow for depth */
+}
+
+.Updatewithotp-form-container h2 {
+    text-align: center; /* Centered heading */
+    color: #333; /* Dark gray color */
+}
+
+.Updatewithotp-form-container form {
+    margin-top: 20px; /* Margin above forms */
+}
+
+.Updatewithotp-form-container label {
+    display: block; /* Block display for labels */
+    margin-bottom: 6px; /* Space below labels */
+    color: #333; /* Dark gray color */
+}
+
+.Updatewithotp-form-container input[type="email"],
+.Updatewithotp-form-container input[type="text"],
+.Updatewithotp-form-container input[type="password"] {
+    width: 100%; /* Full width inputs */
+    padding: 10px; /* Padding inside inputs */
+    margin-bottom: 20px; /* Space below inputs */
+    border: 1px solid #ccc; /* Light gray border */
+    border-radius: 4px; /* Rounded corners for inputs */
+    box-sizing: border-box; /* Includes padding and border in width */
+}
+
+.Updatewithotp-form-container button[type="submit"] {
+    width: 100%; /* Full width buttons */
+    padding: 12px; /* Padding inside buttons */
+    border: none; /* No border */
+    border-radius: 4px; /* Rounded corners for buttons */
+    background-color: rgb(243, 234, 223); /* Button background color */
+    color: black; /* Button text color */
+    font-size: 16px; /* Font size for button text */
+    cursor: pointer; /* Pointer cursor on hover */
+    transition: background-color 0.3s ease; /* Transition for hover effect */
+}
+
+.Updatewithotp-form-container button[type="submit"]:hover {
+    background-color: rgb(240, 224, 200); /* Button background on hover */
+}
+
+.Updatewithotp-form-container button[type="submit"]:focus {
+    outline: none; /* Remove outline on focus */
+}
+
+.Updatewithotp-alert {
+    padding: 15px; /* Padding inside alert */
+    margin-bottom: 20px; /* Space below alert */
+    border-radius: 4px; /* Rounded corners for alert */
+    text-align: center; /* Centered text in alert */
+    font-weight: bold; /* Bold text */
+}
+
+.Updatewithotp-alert.success {
+    background-color: #d4edda; /* Success alert background */
+    color: #155724; /* Success alert text color */
+}
+
+.Updatewithotp-alert.error {
+    background-color: #f8d7da; /* Error alert background */
+    color: #721c24; /* Error alert text color */
+}

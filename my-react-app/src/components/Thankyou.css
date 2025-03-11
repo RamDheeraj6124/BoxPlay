@@ -1,0 +1,30 @@
+.thankyou-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh; /* Full viewport height */
+    background-color: #f0f8ff; /* Light Blue background */
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+}
+
+.thankyou-message {
+    max-width: 600px;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+    background-color: #fff;
+    text-align: center; /* Center text */
+}
+
+.thankyou-message h1 {
+    color: #333;
+    font-size: 2.5rem;
+    margin-bottom: 20px;
+}
+
+.thankyou-message p {
+    color: #666;
+    font-size: 1.2rem;
+    line-height: 1.6;
+}
