@@ -3,18 +3,11 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  background-position: fixed;
-  overflow-x: hidden;
 }
 
 header {
   width: 100%;
   background-color: #333;
-  position: fixed; /* Fix the header at the top */
-  top: 0;
-  left: 0;
-  z-index: 1000; /* Ensure the header stays above other content */
-  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: Adds a shadow for better visibility */
 }
 
 .highlight {
@@ -26,8 +19,6 @@ header {
   justify-content: space-between;
   align-items: center;
   padding: 15px 30px;
-  width: 100%;
-  overflow: hidden;
 }
 
 .logo a {
@@ -59,6 +50,7 @@ header {
   font-size: 1rem;
 }
 
+/* Dropdown Styles */
 /* Dropdown Styles */
 .username {
   position: relative; /* For positioning the dropdown */
@@ -92,12 +84,10 @@ header {
 .dropdown button:hover {
   background-color: #555; /* Change background on hover */
 }
-
-.h-user {
+.h-user{
   color: white;
   font-size: 1.3rem;
 }
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .nav-links1 {
@@ -107,9 +97,4 @@ header {
   .auth a {
       font-size: 0.9rem;
   }
-}
-
-/* Prevent content from going under the fixed header */
-body {
-  padding-top: 60px; /* Adjust this value based on the header's height */
 }

@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const dbconnect = require('./config/db');
+const errorHandler = require('./middlewares/errorHandler');
 const userroutes = require('./routes/userroutes');
 const shoproutes=require('./routes/shoproutes');
 const adminroutes=require('./routes/adminroutes');
@@ -26,22 +27,6 @@ app.use(
       },
     }),
   );
-  app.use((error, req, res, next) => {
-    console.log("Error Handling Middleware Triggered");
-    console.log("Path:", req.path);
-    console.log("Error:", error);
-
-    if (error.type === 'redirect') {
-        res.redirect('/error');
-    } else if (error.type === 'time-out') {
-        res.status(408).send('Request Timeout');
-    } else {
-        res.status(500).send('Internal Server Error');
-    }
-});
-app.get('/error',(req,res) => {
-  res.send('error');
-})  
 app.use(morgan('tiny'))
 app.use(morgan('combined'))
 app.use(morgan(':method :url :status'))
@@ -75,6 +60,8 @@ app.use(session({
 app.use('/user', userroutes);
 app.use('/shop', shoproutes);
 app.use('/admin', adminroutes);
+app.use(errorHandler);
+
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -7,13 +7,17 @@ const dns = require('dns');
 
 const validateEmailDomain = async (email) => {
     try {
-        // Extract domain from email
+        // Validate email format
+        if (!email || !email.includes('@')) {
+            throw new Error('Invalid email format');
+        }
+
         const domain = email.split('@')[1];
         if (!domain) {
             throw new Error('Invalid email format');
         }
 
-        // Check for MX records
+        // Check MX records
         const mxRecords = await new Promise((resolve, reject) => {
             dns.resolveMx(domain, (err, addresses) => {
                 if (err) {
@@ -33,11 +37,11 @@ const validateEmailDomain = async (email) => {
 // Set up nodemailer
 const transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
-    port: 587,
-    secure: false,
+    port: 465,
+    secure: true,
     auth: {
         user: 'kunisettyramdheeraj061204@gmail.com', 
-        pass: 'dhmc peub imsq zxka' 
+        pass: 'vqor kogf cure rbhb' 
     }
 });
 
@@ -59,10 +63,19 @@ exports.sendOTP = async (req, res) => {
         await user.save();
 
         const mailOptions = {
-            from: 'kbhargavreddy22@gmail.com',
+            from: 'kunisettyramdheeraj061204@gmail.com',
             to: email,
             subject: 'Forget Password - One Time Password',
-            text: `Your OTP is: ${otp}`
+            html: `
+            <div style="max-width: 500px; margin: auto; padding: 20px; font-family: Arial, sans-serif; border: 1px solid #ddd; border-radius: 10px; background-color: #f9f9f9; text-align: center;">
+                <h2 style="color: #333;">Otp</h2>
+                <p>Hi User</p>
+                <p>Here is the Otp to reset your password:</p>
+                <p style="font-size: 24px; font-weight: bold; color: #007bff;">${otp}</p>
+                <p>If you have not requested this, please ignore this message.</p>
+                <p style="font-size: 12px; color: #777;">- BoxPlay Team</p>
+                <p style="font-size: 10px; color: #aaa;">This is a system-generated message. Please do not reply.</p>
+            </div>`
         };
 
         transporter.sendMail(mailOptions, (error, info) => {

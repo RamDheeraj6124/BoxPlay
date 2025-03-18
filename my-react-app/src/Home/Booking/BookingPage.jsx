@@ -362,7 +362,7 @@ const BookingPage = () => {
               ))}
             </select>
             <h3>Ground Price: ₹{(pricePerHour * playDuration).toFixed(2)}</h3>
-            <h3>Platform Fee: ₹{(pricePerHour * playDuration * platformpercentage / 100).toFixed(2)}</h3>
+            <h3>Platform Fee: ₹{(pricePerHour * playDuration * 5/ 100).toFixed(2)}</h3>
             <h3>Total Fee: ₹{(pricePerHour * playDuration + (pricePerHour * playDuration * platformpercentage / 100)).toFixed(2)}</h3>
 
             {sessionstate && <button onClick={bookinghandle} className="bp-book-now-button">Book Now</button>}

@@ -4,8 +4,6 @@
     padding: 20px;
     background-color: #333;
     border-top: 2px solid #ccc;
-    margin-top:4.05%;
-    overflow: hidden;
 }
 
 /* Styling for the heading */
@@ -49,6 +47,7 @@
     width: 80%;
     padding: 5px;
     color: #6d7d6f;
+    
 }
 
 /* Search dropdown container */
@@ -70,7 +69,6 @@
 .search-dropdown2:hover {
     border: 1px solid #333; 
 }
-
 /* Search dropdown items */
 .search-dropdown-item {
     padding: 10px;
@@ -78,10 +76,6 @@
     color: #333;
     cursor: pointer;
     background-color: #f9f9f9;
-    border: none;
-    width: 100%;
-    text-align: left;
-    display: block;
 }
 
 .search-dropdown-item:hover {
@@ -123,7 +117,7 @@
 
 /* Dropdown content styling */
 .dropdown-content {
-    color: #050404;
+    color: #000000;
     display: block;
     position: absolute;
     background-color: white;
@@ -146,39 +140,29 @@
 }
 
 .dropdown-item {
-    color: #615f5f;
     padding: 10px;
+    color: #333;
     border: 1px solid #ddd;
     text-align: center;
     cursor: pointer;
     background-color: #f9f9f9;
-    border-radius: 5px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 100%;
-}
-
-.dropdown-item button {
-    background: none;
-    border: none;
-    font-size: 14px;
-    color: #333;
-    cursor: pointer;
-    width: 100%;
-    padding: 10px;
-    text-align: center;
 }
 
 .dropdown-item:hover {
-    color: #262323;
-    background-color: #e0e0e0f2;
+    background-color: #e0e0e0;
 }
 
-/* Ensure button hover is smooth */
-.dropdown-item button:hover {
-    background-color: #ddd;
+
+.dropdownstyle h1{
+   text-align: left;
+   font-size: 1.1rem;
 }
+
+.dropdownstyle p {
+    text-align: left;
+}
+
+
 
 /* Responsive behavior for smaller screens */
 @media (max-width: 768px) {
