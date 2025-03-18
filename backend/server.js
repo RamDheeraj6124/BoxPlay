@@ -13,6 +13,7 @@ require('dotenv').config();
 const morgan=require('morgan')
 const path=require('path')
 var rfs = require('rotating-file-stream')
+const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 dbconnect();
 app.use(bodyParser.json());
@@ -61,7 +62,6 @@ app.use('/user', userroutes);
 app.use('/shop', shoproutes);
 app.use('/admin', adminroutes);
 app.use(errorHandler);
-
 
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -1,55 +1,53 @@
-const express = require('express');
+const express = require('express'); 
 const User = require('../models/User');
 const Shop = require('../models/Shop');
-const Booking=require('../models/Booking');
-const Sport=require('../models/Sport');
+const Booking = require('../models/Booking');
+const Sport = require('../models/Sport');
 const Query = require('../models/Query');
 
+// Helper function
 const displaydetails = async () => {
     let users = [];
     let shops = [];
-    let queries=[];
+    let queries = [];
     try {
         users = await User.find();
         shops = await Shop.find();
-        queries=await Query.find();
-        return { users, shops,queries }; // Return the data
+        queries = await Query.find();
+        return { users, shops, queries };
     } catch (err) {
-        console.error(err);
         throw new Error("Error retrieving data");
     }
 };
 
+// Admin check session
 exports.checksession = async (req, res, next) => {
     if (req.session.user && req.session.user.role === "admin") {
         try {
             const admin = await User.findById(req.session.user._id);
             const details = await displaydetails();
-
             res.status(200).json({
                 message: "Session Exists",
                 username: req.session.user.username,
                 details,
                 admin
             });
-        } catch (error) {
-            error.type = 'redirect';
-            next(error);
+        } catch (err) {
+            next(err);
         }
     } else {
         res.status(401).json({ message: "Unauthorized" });
     }
 };
 
+// Admin verify route
 exports.adminverify = async (req, res, next) => {
     const { shopId, availablesports } = req.body;
-
     try {
         const shop = await Shop.findById(shopId);
+
         if (!shop) {
-            const error = new Error('Shop not found');
-            error.type = 'redirect';
-            return next(error);
+            return res.status(404).json({ message: 'Shop not found' });
         }
 
         shop.availablesports = availablesports;
@@ -57,27 +55,21 @@ exports.adminverify = async (req, res, next) => {
 
         return res.json(updatedShop);
     } catch (error) {
-        error.type = 'redirect';
         next(error);
     }
 };
 
 exports.admindeleteground = async (req, res, next) => {
     const { shopId, groundName } = req.body;
-
     try {
         const shop = await Shop.findById(shopId);
         if (!shop) {
-            const error = new Error('Shop not found');
-            error.type = 'redirect';
-            return next(error);
+            return res.status(404).json({ message: 'Shop not found' });
         }
 
         const groundIndex = shop.availablesports.findIndex(sport => sport.groundname === groundName);
         if (groundIndex === -1) {
-            const error = new Error('Ground not found');
-            error.type = 'redirect';
-            return next(error);
+            return res.status(404).json({ message: 'Ground not found' });
         }
 
         shop.availablesports.splice(groundIndex, 1);
@@ -85,26 +77,22 @@ exports.admindeleteground = async (req, res, next) => {
 
         return res.status(200).json({ message: 'Ground deleted successfully', shop });
     } catch (error) {
-        error.type = 'redirect';
         next(error);
     }
 };
 
 exports.admindeleteuser = async (req, res, next) => {
     const { userId } = req.body;
-
     try {
-        await User.findByIdAndDelete(userId);
+        await User.findByIdAndDelet(userId);
         res.status(200).json({ message: 'Deleted Successfully' });
     } catch (error) {
-        error.type = 'redirect';
         next(error);
     }
 };
 
 exports.fixpercentage = async (req, res, next) => {
     const { percentage } = req.body;
-
     try {
         const adminid = req.session.user._id;
         const admin = await User.findById(adminid);
@@ -113,7 +101,6 @@ exports.fixpercentage = async (req, res, next) => {
 
         res.status(200).json({ message: 'Percentage updated successfully' });
     } catch (error) {
-        error.type = 'redirect';
         next(error);
     }
 };
@@ -126,13 +113,10 @@ exports.getpercentage = async (req, res, next) => {
         if (admin) {
             res.status(200).json({ percentage: admin.revenuepercentage });
         } else {
-            const error = new Error('Admin not found');
-            error.type = 'redirect';
-            next(error);
+            res.status(404).json({ message: 'Admin not found' });
         }
-    } catch (error) {
-        error.type = 'redirect';
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
 
@@ -140,6 +124,7 @@ exports.checkRevenue = async (req, res, next) => {
     try {
         const bookings = await Booking.find();
         const shops = await Shop.find();
+
         const shopMap = {};
         shops.forEach(shop => {
             shopMap[shop._id] = shop.shopname;
@@ -176,7 +161,6 @@ exports.checkRevenue = async (req, res, next) => {
             shopRevenues: shopRevenues
         });
     } catch (error) {
-        error.type = 'redirect';
         next(error);
     }
 };
@@ -199,9 +183,8 @@ exports.getallbookings = async (req, res, next) => {
             todaysBookings,
             pastBookings
         });
-    } catch (error) {
-        error.type = 'redirect';
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
 
@@ -209,16 +192,13 @@ exports.getsportslist = async (req, res, next) => {
     try {
         const sportslist = await Sport.find();
 
-        if (sportslist) {
+        if (sportslist.length > 0) {
             res.status(200).json({ success: true, sportslist });
         } else {
-            const error = new Error('No sports found');
-            error.type = 'redirect';
-            next(error);
+            res.status(404).json({ success: false, message: 'No sports found' });
         }
-    } catch (error) {
-        error.type = 'redirect';
-        next(error);
+    } catch (err) {
+        next(err);
     }
 };
 
@@ -227,9 +207,7 @@ exports.addsport = async (req, res, next) => {
         const { sportName, equipmentRequired, rules } = req.body;
 
         if (!sportName || !equipmentRequired || !rules) {
-            const error = new Error('All fields are required');
-            error.type = 'redirect';
-            return next(error);
+            return res.status(400).json({ message: 'All fields are required.' });
         }
 
         const newSport = new Sport({
@@ -240,10 +218,9 @@ exports.addsport = async (req, res, next) => {
 
         await newSport.save();
 
-        res.status(201).json({ message: 'Sport added successfully', sport: newSport });
-    } catch (error) {
-        error.type = 'redirect';
-        next(error);
+        return res.status(201).json({ message: 'Sport added successfully', sport: newSport });
+    } catch (err) {
+        next(err);
     }
 };
 
@@ -251,7 +228,6 @@ exports.logout = async (req, res, next) => {
     if (req.session && req.session.user.role === 'admin') {
         req.session.destroy(err => {
             if (err) {
-                err.type = 'redirect';
                 return next(err);
             }
             res.status(200).json({ message: 'Logged out successfully' });
@@ -260,5 +236,3 @@ exports.logout = async (req, res, next) => {
         res.status(400).json({ message: 'No active session to log out from' });
     }
 };
-
-
