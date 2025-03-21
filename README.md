@@ -47,7 +47,7 @@
    ```sh
    cd BoxPlay/backend
    npm install
-   nodemon
+   npm start
    ```
 
 ---
