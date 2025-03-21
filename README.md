@@ -39,14 +39,14 @@
 
 2. **Frontend Setup**
    ```sh
-   cd fedproject/my-react-app
+   cd BoxPlay/my-react-app
    npm install
    npm start
    ```
 
 3. **Backend Setup**
    ```sh
-   cd fedproject/backend
+   cd BoxPlay/backend
    npm install
    nodemon
    ```
