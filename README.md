@@ -34,7 +34,6 @@
 1. **Clone the Repository**
    ```sh
    git clone https://github.com/RamDheeraj6124/BoxPlay.git
-   cd boxplay
    ```
 
 2. **Frontend Setup**
