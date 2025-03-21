@@ -13,7 +13,6 @@ require('dotenv').config();
 const morgan=require('morgan')
 const path=require('path')
 var rfs = require('rotating-file-stream')
-const errorHandler = require('./middlewares/errorHandler');
 const app = express();
 dbconnect();
 app.use(bodyParser.json());

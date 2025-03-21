@@ -2008,3 +2008,8 @@
 ::1 - - [18/Mar/2025:06:56:29 +0000] "GET /shop/loadvenues HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [18/Mar/2025:06:56:36 +0000] "OPTIONS /shop/loadground HTTP/1.1" 204 0 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
 ::1 - - [18/Mar/2025:06:56:37 +0000] "POST /shop/loadground HTTP/1.1" 200 131354 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [21/Mar/2025:08:55:29 +0000] "GET /user/checksession HTTP/1.1" 400 32 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [21/Mar/2025:08:55:29 +0000] "GET /shop/checkshopsession HTTP/1.1" 400 32 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [21/Mar/2025:08:55:30 +0000] "GET /shop/getsportslist HTTP/1.1" 200 2725 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [21/Mar/2025:08:55:30 +0000] "GET /shop/getsportslist HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [21/Mar/2025:08:55:30 +0000] "GET /shop/loadvenues HTTP/1.1" 200 788209 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
