@@ -4,21 +4,41 @@ const Shop = require('../models/Shop');
 const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
 const Query = require('../models/Query');
+const fs=require('fs');
+const path=require('path');
 
-// Helper function
+
 const displaydetails = async () => {
-    let users = [];
-    let shops = [];
-    let queries = [];
     try {
-        users = await User.find();
-        shops = await Shop.find();
-        queries = await Query.find();
+        const users = await User.find();
+        
+        // Use .lean() to get plain JavaScript objects
+        const shops = await Shop.find().populate('availablesports.sport').lean(); 
+        const queries = await Query.find();
+
+        shops.forEach((shop) => {
+            if (shop.availablesports && shop.availablesports.length > 0) {
+                shop.availablesports = shop.availablesports.map((sport) => {
+                    try {
+                        const filepath = path.join(__dirname, '..', sport.image);
+                        const imageBuffer = fs.readFileSync(filepath);
+                        sport.getimage = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+                    } catch (error) {
+                        console.error(`Error reading image for ${sport.groundname}:`, error);
+                        sport.getimage = '';  // Empty string in case of error
+                    }
+                    return sport;
+                });
+            }
+        });
         return { users, shops, queries };
     } catch (err) {
+        console.error("Error retrieving data:", err);
         throw new Error("Error retrieving data");
     }
 };
+
+
 
 // Admin check session
 exports.checksession = async (req, res, next) => {
