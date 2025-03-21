@@ -35,21 +35,20 @@
 1. **Clone the Repository**
    ```sh
    git clone https://github.com/RamDheeraj6124/BoxPlay.git
-   cd boxplay
    ```
 
 2. **Frontend Setup**
    ```sh
-   cd fedproject/my-react-app
+   cd BoxPlay/my-react-app
    npm install
    npm start
    ```
 
 3. **Backend Setup**
    ```sh
-   cd fedproject/backend
+   cd BoxPlay/backend
    npm install
-   nodemon
+   npm start
    ```
 
 ---
@@ -57,16 +56,16 @@
 ## 📂 Project Structure
 
 ```sh
-boxplay/
-│── fedproject/
+
+|BoxPlay/
 │   ├── my-react-app/   # Frontend React application
 │   ├── backend/        # Backend API (Node.js + Express)
-│── models/             # MongoDB Models
-│── routes/             # Express API Routes
-│── controllers/        # Business logic for handling requests
-│── services/           # Core domain services (DDD)
-│── repositories/       # Data access layer for MongoDB
-│── config/             # Configuration files
+│       ├── config/     # Configuration files
+│       ├── controllers/ # Business logic for handling requests
+│       ├── models/     # MongoDB Models
+│       ├── node_modules/ # Node.js dependencies
+│       ├── public/     # Public assets
+│       ├── routes/     # Express API Routes
 │── README.md           # Documentation
 ```
 
