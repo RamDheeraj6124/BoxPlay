@@ -23,22 +23,6 @@
 
 ---
 
-## 🏗 System Architecture
-
-BoxPlay follows **Domain-Driven Design (DDD)** and consists of the following domains:
-
-1. **Person** - Manages user details, email verification, and revenue tracking.
-2. **Shop Sport** - Handles available sports, pricing, and facilities.
-3. **Shop Registration** - Manages shop registration, verification, and contact details.
-4. **Booking** - Handles ground booking, feedback, and payment tracking.
-5. **User** - Manages user roles, contact updates, and feedback.
-6. **Shop** - Handles shop updates, adding sports, and revenue tracking.
-7. **BookingService** - Manages bookings and user interactions.
-8. **Hub** - Connects `BookingService` and `RegistrationService` for verification.
-9. **RegistrationService** - Manages shop and sports repositories.
-
----
-
 ## 🛠 Installation
 
 ### 📌 Prerequisites
