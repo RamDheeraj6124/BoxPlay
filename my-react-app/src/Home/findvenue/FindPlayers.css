@@ -1,91 +1,126 @@
 .find-players-container {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 60px;
-    margin-bottom: 20px;
-  }
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 60px;
+  margin-bottom: 20px;
+}
 
-  .location-selector {
-    display: flex;
-    align-items: center;
-    font-size: 18px;
-    background-color: #f2f4f5;
-    padding: 10px 20px;
-    border-radius: 20px;
-    width: fit-content;
-    margin-bottom: 20px;
-  }
+.location-selector {
+  display: flex;
+  align-items: center;
+  font-size: 18px;
+  background-color: #f2f4f5;
+  padding: 10px 20px;
+  border-radius: 20px;
+  width: fit-content;
+  margin-bottom: 20px;
+}
 
-  .parawidth {
-    align-items: start;
-    width:160%;
-  }
+.parawidth {
+  align-items: start;
+  width: 160%;
+}
 
-  .location-icon {
-    margin-right: 8px;
+.location-icon {
+  margin-right: 8px;
+}
+
+.text-section {
+  max-width: 50%;
+}
+
+.text-section h1 {
+  font-size: 36px;
+  font-weight: bold;
+  margin-bottom: 15px;
+  width: 30vw;
+}
+
+.text-section p {
+  font-size: 18px;
+  color: #6c7a7e;
+}
+
+.images-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  width: 500px;/*added */
+}
+
+.slider-container {
+  position: relative;
+  width: 500px;/*added from 400 */
+  height: 400px;/*added from 300 */
+  overflow: hidden;
+}
+
+.main-image {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out, transform 0.5s ease-in-out;/*added */
+  border-radius: 15px; /* Slightly larger border radius */
+  transform: scale(1.05); /* Slight zoom effect */
+
+}
+
+.main-image.active {
+  opacity: 1;
+  transform: scale(1);/*added */
+}
+
+.thumbnail-navigation {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 10px;
+}
+
+.thumbnail {
+  width: 80px;/* Increased from 60px */
+  height: 80px;/* Increased from 60px */
+  object-fit: cover;
+  border-radius: 8px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);/*added */
+}
+
+.thumbnail:hover {
+  opacity: 0.8;
+}
+
+.thumbnail.active {
+  opacity: 1;
+  border: 2px solid #007bff;
+}
+
+@media (max-width: 768px) {
+  .find-players-container {
+    flex-direction: column;
   }
 
   .text-section {
-    max-width: 50%;
+    max-width: 100%;
+    text-align: center;
   }
-  
-  .text-section h1 {
-    font-size: 36px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    width: 30vw;
-    
+
+  .slider-container {
+    width: 100%;
+    height: 250px;
   }
-  
-  .text-section p {
-    font-size: 18px;
-    color: #6c7a7e;
+
+  .thumbnail-navigation {
+    gap: 5px;
   }
-  
-  .images-section {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+
+  .thumbnail {
+    width: 50px;
+    height: 50px;
   }
-  
-  .main-image {
-    width: 400px;
-    height: auto;
-    border-radius: 10px;
-    object-fit: cover;
-    margin-bottom: 20px;
-  }
-  
-  .sub-images {
-    display: flex;
-    gap: 20px;
-  }
-  
-  .sub-image {
-    width: 200px;
-    height: auto;
-    border-radius: 10px;
-    object-fit: cover;
-  }
-  
-  /* Adjust for responsiveness */
-  @media (max-width: 768px) {
-    .find-players-container {
-      flex-direction: column;
-    }
-  
-    .text-section {
-      max-width: 100%;
-      text-align: center;
-    }
-  
-    .images-section {
-      flex-direction: column;
-    }
-  
-    .sub-images {
-      flex-direction: row;
-    }
-  }
-  
+}
