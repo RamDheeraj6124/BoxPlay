@@ -4,7 +4,6 @@
 
 ## 📋 Table of Contents
 - [Features](#-features)
-- [System Architecture](#-system-architecture)
 - [Installation](#-installation)
 - [Project Structure](#-project-structure)
 - [API Endpoints](#-api-endpoints)
