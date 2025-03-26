@@ -86,7 +86,6 @@ const ShopDashboard = () => {
     };
 }, [navigate]);
 
-
   const updatesubmit = async (e) => {
     e.preventDefault();
     const { shopname, address } = e.target.elements;
@@ -106,9 +105,12 @@ const ShopDashboard = () => {
 
       if (response.ok) {
         const data = await response.json();
-        setState(data.updatedShop);
+        setState(prevState => ({
+          ...prevState,
+          shopname: data.updatedShop.shopname,
+          address: data.updatedShop.address
+        }));
         alert('Shop details updated successfully');
-        window.location.reload();
       } else {
         const error = await response.json();
         alert(`Update failed: ${error.msg}`);
@@ -159,7 +161,7 @@ const ShopDashboard = () => {
   const addGround = async (e) => {
     e.preventDefault();
     const form = e.target;
-    const formData = new FormData(form); // Use FormData to handle file upload
+    const formData = new FormData(form);
 
     const availability = daysArray.map((day, index) => ({
       day,
@@ -170,17 +172,17 @@ const ShopDashboard = () => {
     try {
       const response = await fetch('http://localhost:5000/shop/addground', {
         method: 'POST',
-        body: formData, // Send FormData directly
+        body: formData,
         credentials: 'include'
       });
 
       if (response.ok) {
         const updatedData = await response.json();
         console.log('Updated Grounds Data:', updatedData);
-        setGrounds(updatedData.shop.availablesports);
+        setGrounds(prevGrounds => [...prevGrounds, updatedData.newGround]);
         alert('Ground added successfully!');
-        navigate('/shopdashboard');
         
+        // Reset form and state
         form.reset();
         setDaysPerWeek(0);
         setDaysArray([]);
@@ -194,6 +196,7 @@ const ShopDashboard = () => {
       alert('An error occurred while adding the ground.');
     }
   };
+
   const applyingforverification = async (groundname) => {
     try {
       const response = await fetch('http://localhost:5000/shop/applyforverification', {
@@ -208,17 +211,14 @@ const ShopDashboard = () => {
       if (response.ok) {
         alert('Applied Successfully');
   
-        // Fetch updated data from the server
-        const updatedResponse = await fetch('http://localhost:5000/shop/checkshopsession', {
-          credentials: 'include'
-        });
-  
-        if (updatedResponse.ok) {
-          const updatedData = await updatedResponse.json();
-          setState(updatedData.shop); // Update shop state
-          setGrounds(updatedData.shop.availablesports || []); // Update the grounds list
-        }
-  
+        // Update the specific ground's status in the grounds array
+        setGrounds(prevGrounds => 
+          prevGrounds.map(ground => 
+            ground.groundname === groundname 
+              ? { ...ground, appliedforverification: true } 
+              : ground
+          )
+        );
       } else {
         const error = await response.json();
         alert(`Failed to apply for verification: ${error.msg}`);
@@ -228,6 +228,7 @@ const ShopDashboard = () => {
       alert('An error occurred while applying for verification.');
     }
   };
+
   const chartData = {
     labels: groundRevenue.map((sport) => sport.groundName),
     datasets: [{
@@ -235,12 +236,12 @@ const ShopDashboard = () => {
         data: groundRevenue.map((sport) => sport.groundFee),
         backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF9F40'],
     }],
-};
-const shoplogout = async () => {
-  await fetch('http://localhost:5000/shop/logout', { credentials: 'include', method: 'POST' });
-  navigate('/');
-};
-  
+  };
+
+  const shoplogout = async () => {
+    await fetch('http://localhost:5000/shop/logout', { credentials: 'include', method: 'POST' });
+    navigate('/');
+  };
 
   return (
     <div className="sd-shop-dashboard">
@@ -283,7 +284,7 @@ const shoplogout = async () => {
         <select className="sd-select" name="selectsport" id="select Sport">
           {sportlist.length>0 ?(
             sportlist.map((sport) => (
-              <option value={sport.name}>{sport.name}</option>
+              <option key={sport.name} value={sport.name}>{sport.name}</option>
               ))
             ):(<p>No sports</p>)}
         </select>
@@ -368,8 +369,8 @@ const shoplogout = async () => {
       </form>
       <div className="sd-pie-chart">
         <h1>Shop's Revenue</h1>
-                <Pie data={chartData} />
-            </div>
+        <Pie data={chartData} />
+      </div>
 
       <ul className="sd-grounds-list">
         {grounds.map((ground, index) => (
@@ -381,16 +382,18 @@ const shoplogout = async () => {
             <p>Facilities: {ground.facilities.join(', ')}</p>
             <p>Surface Type: {ground.surfacetype}</p>
             <img
-              src={ground.getimage || ground.image||'default-image-path.jpg'} // Fallback to default image if not available
+              src={ground.getimage || ground.image||'default-image-path.jpg'} 
               alt={ground.groundname}
               className="sd-ground-image"
             />
             <p>Status: {ground.status}</p>
             <p>Verification: {ground.verify ? 'Verified' : 'Not Verified'}</p>
-            <p>Appled For Verification: {ground.appliedforverification ? 'Applied' : 'Not Applied'}</p>
-            {!ground.verify && !ground.appliedforverification &&(
-        <button onClick={() => applyingforverification(ground.groundname)}>Apply for Verification</button>
-      )}
+            <p>Applied For Verification: {ground.appliedforverification ? 'Applied' : 'Not Applied'}</p>
+            {!ground.verify && !ground.appliedforverification && (
+              <button onClick={() => applyingforverification(ground.groundname)}>
+                Apply for Verification
+              </button>
+            )}
           </li>
         ))}
       </ul>
