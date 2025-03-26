@@ -4,22 +4,23 @@
       {
         "src": "my-react-app/package.json",
         "use": "@vercel/static-build",
-        "config": { "distDir": "build" }
+        "config": { 
+          "distDir": "my-react-app/build",
+          "buildCommand": "npm run build",
+          "installCommand": "npm install"
+        }
       },
       {
         "src": "backend/server.js",
-        "use": "@vercel/node"
+        "use": "@vercel/node",
+        "config": {
+          "buildCommand": "npm run build",
+          "installCommand": "npm install"
+        }
       }
     ],
     "routes": [
-      {
-        "src": "/api/(.*)",
-        "dest": "/backend/server.js"
-      },
-      {
-        "src": "/(.*)",
-        "dest": "/my-react-app/$1"
-      }
+      { "src": "/api/(.*)", "dest": "backend/server.js" },
+      { "src": "/(.*)", "dest": "my-react-app/$1" }
     ]
   }
-  
