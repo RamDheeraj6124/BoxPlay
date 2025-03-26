@@ -4,8 +4,7 @@ import './AdminDashboard.css';
 
 const VerifyShopMode = () => {
     const [username, setUsername] = useState(null);
-    const [users, setUsers] = useState([]);
-    const [shops, setShops] = useState([]);
+
     const [verifyShops, setVerifyShops] = useState([]);
     const [selectedShop, setSelectedShop] = useState(null);
     const [isVerifyShopModalOpen, setIsVerifyShopModalOpen] = useState(false);
@@ -23,8 +22,6 @@ const VerifyShopMode = () => {
                 if (response.ok) {
                     const data = await response.json();
                     setUsername(data.username);
-                    setUsers(data.details.users);
-                    setShops(data.details.shops);
                     console.log(data.details.shops);
 
                     const filteredVerifyShops = data.details.shops.filter(shop =>
@@ -114,10 +111,6 @@ const VerifyShopMode = () => {
                 const updatedShopFromDB = await response.json();
                 console.log("Updated Shop:", updatedShopFromDB);
                 closeVerifyShopModal();
-
-                setShops(prevShops =>
-                    prevShops.map(shop => shop._id === updatedShopFromDB._id ? updatedShopFromDB : shop)
-                );
                 window.location.reload();
             } else {
                 console.error("Failed to update shop.");
@@ -139,20 +132,6 @@ const VerifyShopMode = () => {
         return labels[type] || type;
     };
     
-    const formatTime = (time) => {
-        // If time is already in 12-hour format with AM/PM, return as is
-        if (time.includes('AM') || time.includes('PM')) {
-            return time;
-        }
-        
-        // Convert 24-hour format to 12-hour format
-        const [hours, minutes] = time.split(':');
-        const hour = parseInt(hours, 10);
-        const ampm = hour >= 12 ? 'PM' : 'AM';
-        const formattedHour = hour % 12 || 12;
-        
-        return `${formattedHour}:${minutes} ${ampm}`;
-    };
 
     if (!username) {
         return <div className="login-message">You must be logged in as an admin to view this page.</div>;
@@ -215,7 +194,7 @@ const VerifyShopMode = () => {
                             <h2 className="grounds-section-header">Grounds Awaiting Verification</h2>
                             <div className="grounds-container">
                                 {selectedShop.availablesports
-                                    .filter(sport => sport.appliedforverification)
+                                    .filter(sport => sport.appliedforverification && !sport.verify)
                                     .map((sport, index) => {
                                         const sportInfo = sportTypes[sport.sport] || {};
                                         return (

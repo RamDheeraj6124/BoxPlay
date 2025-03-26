@@ -150,7 +150,7 @@ exports.updateshop = async (req, res) => {
 
 
 exports.addground = async (req, res) => {
-    const { groundname, priceperhour, maxplayers, groundLength, groundwidth, facilities, surfaceType, availability } = req.body;
+    const { selectsport,groundname, priceperhour, maxplayers, groundLength, groundwidth, facilities, surfaceType, availability } = req.body;
     const image = req.file; // Multer stores the uploaded file in req.file
 
     // Parse the availability from the request
@@ -178,6 +178,7 @@ exports.addground = async (req, res) => {
         // Find the shop by user session or ID (you may want to adapt this)
         const shopId = req.session.shop._id; // Assuming you store shop ID in session
         const shop = await Shop.findById(shopId);
+        const sport=await Sport.findOne({name:selectsport});
 
         if (!shop) {
             return res.status(404).json({ msg: 'Shop not found' });
@@ -189,6 +190,7 @@ exports.addground = async (req, res) => {
 
         // Create a new ground object
         const newGround = {
+            sport,
             groundname,
             priceperhour,
             maxplayers,

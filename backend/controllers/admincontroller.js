@@ -4,6 +4,7 @@ const Shop = require('../models/Shop');
 const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
 const Query = require('../models/Query');
+const Location = require('../models/Location');
 const fs=require('fs');
 const path=require('path');
 
@@ -100,6 +101,27 @@ exports.admindeleteground = async (req, res, next) => {
         next(error);
     }
 };
+exports.verifygroundagain = async (req, res, next) => {
+    const { shopId, groundName } = req.body;
+    try {
+        const shop = await Shop.findById(shopId);
+        if (!shop) {
+            return res.status(404).json({ message: 'Shop not found' });
+        }
+
+        const groundIndex = shop.availablesports.findIndex(sport => sport.groundname === groundName);
+        if (groundIndex === -1) {
+            return res.status(404).json({ message: 'Ground not found' });
+        }
+
+        shop.availablesports.verify=false;
+        await shop.save();
+
+        return res.status(200).json({ message: 'Ground deleted successfully', shop });
+    } catch (error) {
+        next(error);
+    }
+};
 
 exports.admindeleteuser = async (req, res, next) => {
     const { userId } = req.body;
@@ -184,6 +206,7 @@ exports.checkRevenue = async (req, res, next) => {
         next(error);
     }
 };
+
 
 exports.getallbookings = async (req, res, next) => {
     try {

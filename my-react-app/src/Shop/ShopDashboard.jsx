@@ -12,9 +12,7 @@ const ShopDashboard = () => {
   const [daysArray, setDaysArray] = useState([]);
   const [timesArray, setTimesArray] = useState([]);
   const [grounds, setGrounds] = useState([]);
-  const [groundImages, setGroundImages] = useState([]);
   const [groundRevenue, setGroundRevenue] = useState([]);
-  const [totalRevenue, setTotalRevenue] = useState(0);
   const navigate = useNavigate();
   const [sportlist, getSportsList] = useState([]);
   const effectRan1 = useRef(false);
@@ -60,7 +58,6 @@ const ShopDashboard = () => {
                     console.log('Shop Data:', data);
                     setState(data.shop);
                     setGrounds(data.shop.availablesports || []);
-                    setGroundImages(data.images || []); // Set the base64 images
                 }
 
                 const revenueresponse = await fetch('http://localhost:5000/shop/checkrevenue', {
@@ -71,7 +68,6 @@ const ShopDashboard = () => {
                 if (revenueresponse.ok) {
                     const revenueData = await revenueresponse.json(); // Correct variable used
                     console.log(revenueData); 
-                    setTotalRevenue(revenueData.totalRevenue);
                     setGroundRevenue(revenueData.groundRevenues);
                 } else {
                     throw new Error("Expected JSON, but received: ");
@@ -182,7 +178,6 @@ const ShopDashboard = () => {
         const updatedData = await response.json();
         console.log('Updated Grounds Data:', updatedData);
         setGrounds(updatedData.shop.availablesports);
-        setGroundImages(updatedData.images || []); // Update base64 images
         alert('Ground added successfully!');
         navigate('/shopdashboard');
         
@@ -222,7 +217,6 @@ const ShopDashboard = () => {
           const updatedData = await updatedResponse.json();
           setState(updatedData.shop); // Update shop state
           setGrounds(updatedData.shop.availablesports || []); // Update the grounds list
-          setGroundImages(updatedData.images || []); // Update ground images if necessary
         }
   
       } else {

@@ -4,7 +4,6 @@ import './ShopMode.css';
 
 const ShopMode = () => {
     const [username, setUsername] = useState(null);
-    const [users, setUsers] = useState([]);
     const [shops, setShops] = useState([]);
     const [selectedShop, setSelectedShop] = useState(null);
     const [isShopModalOpen, setIsShopModalOpen] = useState(false);
@@ -20,7 +19,6 @@ const ShopMode = () => {
             if (response.ok) {
                 const data = await response.json();
                 setUsername(data.username);
-                setUsers(data.details.users);
                 setShops(data.details.shops);
 
             } else {
@@ -69,7 +67,29 @@ const ShopMode = () => {
             console.error("Error:", error);
         }
     };
+    const verifyground = async (e,shopid, groundName) => {
+        e.preventDefault();
+        try {
+            const response = await fetch(`http://localhost:5000/admin/verifygroundagain`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    shopId: shopid,
+                    groundName: groundName
+                }),
+                credentials: 'include'
+            });
+            console.log(groundName)
+            if (response.ok) {
+                window.location.reload();
 
+            }
+        } catch (error) {
+            console.error("Error:", error);
+        }
+    };
 
     if (!username) {
         return <div className="login-message">You must be logged in as an admin to view this page.</div>;
@@ -103,6 +123,19 @@ const ShopMode = () => {
                         </div>
                         {selectedShop.availablesports.map((sport, index) => (
                  <div key={index} className="sport-verification-section">
+                    <div className="ground-image-container">
+                        {sport.getimage ? (
+                            <img 
+                             src={sport.getimage} 
+                            alt={sport.groundname} 
+                            className="ground-image" 
+                            />
+                            ) : (
+                            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%', backgroundColor: '#f0f0f0'}}>
+                            No Image Available
+                            </div>
+                            )}
+                            </div>
             <p><strong>Ground Name:</strong> {sport.groundname}</p>
             <p><strong>Price Per Hour:</strong> {sport.priceperhour}</p>
             <p><strong>Max Players:</strong> {sport.maxplayers.join(", ")}</p>
@@ -138,7 +171,11 @@ const ShopMode = () => {
         </ul>
 
 <button type="submit" className="submit-button" onClick={(e) => deleteground(e,selectedShop._id, sport.groundname)}>Delte Ground</button>
-
+{sport.verify ? (
+<button type="submit" className="submit-button" onClick={(e) => verifyground(e,selectedShop._id, sport.groundname)}>Verify Ground Again</button>
+):(
+   <p>Ground not verified yet</p> 
+)}
 
     </div>
 ))}

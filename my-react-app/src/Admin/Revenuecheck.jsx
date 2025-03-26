@@ -8,6 +8,7 @@ ChartJS.register(ArcElement, Tooltip, Legend);
 const RevenueCheck = () => {
     const [shopRevenue, setShopRevenue] = useState([]);
     const [totalRevenue, setTotalRevenue] = useState(0);
+    const [selectedshoprevenue, setSelectedShopRevenue] = useState([]);
 
     useEffect(() => {
         const checkRevenue = async () => {
