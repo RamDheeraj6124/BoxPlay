@@ -4,7 +4,8 @@ const Shop = require('../models/Shop');
 const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
 const Query = require('../models/Query');
-const Location = require('../models/Location');
+const State = require('../models/State');
+const City= require('../models/City');
 const fs=require('fs');
 const path=require('path');
 
@@ -266,6 +267,58 @@ exports.addsport = async (req, res, next) => {
         next(err);
     }
 };
+exports.getstateslist=async(req,res)=>{
+    try{
+        const states = await State.find();
+        res.status(200).json({ states });
+    }catch(err){
+        next(err);
+    }
+}
+exports.getcitieslist=async(req,res)=>{
+    try{
+        const cities = await City.find();
+        res.status(200).json({ cities });
+    }catch(err){
+        next(err);
+    }
+}
+exports.addstate=async(req,res)=>{
+    try{
+        const name=req.body.name;
+        const check=await State.findOne({name});
+        if(check){
+            return res.status(400).json({ message: 'State already exists.' });
+        }
+        const newState = new State({
+            name
+            });
+        await newState.save();
+        res.status(201).json({ message: 'State added successfully', state: newState });
+        }catch(err){
+        next(err);
+    }}
+exports.addcity=async(req,res)=>{
+    try{
+        const name=req.body.name;
+        const stateId=req.body.stateId;
+        const check=await City.findOne({name});
+        const state=await State.findById(stateId);
+        if(check){
+            return res.status(400).json({ message: 'City already exists.' });
+        }
+        const newCity = new City({
+            name,
+            state:state._id
+            });
+        await newCity.save();
+        state.cities.push(newCity);
+        res.status(201).json({ message: 'city added successfully', city: newCity });
+        }catch(err){
+        console.log(err);
+    }}    
+   
+            
 
 exports.logout = async (req, res, next) => {
     if (req.session && req.session.user.role === 'admin') {

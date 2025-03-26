@@ -170,7 +170,7 @@ const ShopMode = () => {
             ))}
         </ul>
 
-<button type="submit" className="submit-button" onClick={(e) => deleteground(e,selectedShop._id, sport.groundname)}>Delte Ground</button>
+<button type="submit" className="submit-button" onClick={(e) => deleteground(e,selectedShop._id, sport.groundname)}>Delete Ground</button>
 {sport.verify ? (
 <button type="submit" className="submit-button" onClick={(e) => verifyground(e,selectedShop._id, sport.groundname)}>Verify Ground Again</button>
 ):(

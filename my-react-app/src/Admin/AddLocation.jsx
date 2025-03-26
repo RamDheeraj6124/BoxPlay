@@ -2,103 +2,145 @@ import React, { useEffect, useState, useRef } from "react";
 import "./AddLocation.css";
 
 const AddLocation = () => {
-  const [locations, setLocations] = useState([]); // Store list of locations
+  const [states, setStates] = useState([]);
+  const [cities, setCities] = useState([]);
+  const [selectedState, setSelectedState] = useState("");
   const effectRan = useRef(false);
 
   useEffect(() => {
-    const getLocations = async () => {
+    const fetchStates = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/getlocationslist", {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        });
+        const res = await fetch("http://localhost:5000/admin/getstateslist");
         const data = await res.json();
-        setLocations(data.locationslist || []); // Set locations list from response
+        setStates(data.states);
       } catch (err) {
-        console.log("Error fetching locations:", err);
+        console.error("Error fetching states:", err);
+      }
+    };
+
+    const fetchCities = async () => {
+      try {
+        const res = await fetch("http://localhost:5000/admin/getcitieslist");
+        const data = await res.json();
+        setCities(data.cities);
+      } catch (err) {
+        console.error("Error fetching cities:", err);
       }
     };
 
     if (!effectRan.current) {
-      getLocations();
+      fetchStates();
+      fetchCities();
       effectRan.current = true;
     }
 
     return () => {
-      effectRan.current = true; // Cleanup
+      effectRan.current = true; 
     };
   }, []);
 
-  const addToLocations = async (e) => {
+  const addToStates = async (e) => {
     e.preventDefault();
+    const stateName = e.target.state.value.trim();
 
-    const form = e.target;
-    const city = form.city.value;
-    const state = form.state.value;
-
-    const locationData = { city, state };
+    if (!stateName) {
+      alert("State name cannot be empty.");
+      return;
+    }
 
     try {
-      const res = await fetch("http://localhost:5000/admin/addlocation", {
+      const res = await fetch("http://localhost:5000/admin/addstate", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(locationData), // Send JSON-encoded data
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: stateName })
       });
 
       if (res.ok) {
-        alert("Location Added Successfully");
-        form.reset(); // Reset form fields
-        setLocations((prev) => [...prev, locationData]); // Update local state
+        const newState = await res.json();
+        setStates(prevStates => [...prevStates, newState.state]);
+        alert("State added successfully");
+        e.target.state.value = ''; // Clear input field
       } else {
-        alert("Failed to Add Location");
+        const error = await res.json();
+        alert(error.message);
       }
     } catch (err) {
-      console.log("Error adding location:", err);
+      console.error("Error adding state:", err);
+    }
+  };
+
+  const addToCities = async (e) => {
+    e.preventDefault();
+    const cityName = e.target.city.value.trim();
+
+    if (!selectedState) {
+      alert("Please select a state.");
+      return;
+    }
+
+    try {
+      const res = await fetch("http://localhost:5000/admin/addcity", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: cityName, stateId: selectedState })
+      });
+
+      if (res.ok) {
+        const newCity = await res.json();
+        setCities(prevCities => [...prevCities, newCity.city]);
+        alert("City added successfully");
+        e.target.city.value = ''; // Clear input field
+        setSelectedState(''); // Reset state selection
+      } else {
+        const error = await res.json();
+        alert(error.message);
+      }
+    } catch (err) {
+      console.error("Error adding city:", err);
     }
   };
 
   return (
     <div id="al-container">
-      <h1 id="al-title">Add Location</h1>
-      <form id="al-form" onSubmit={addToLocations}>
-        <label htmlFor="al-city">City:</label>
-        <input
-          type="text"
-          id="al-city"
-          name="city"
-          placeholder="Enter the city name"
-          required
-        />
-
-        <label htmlFor="al-state">State:</label>
-        <input
-          type="text"
-          id="al-state"
-          name="state"
-          placeholder="Enter the state name"
-          required
-        />
-
-        <button type="submit" id="al-submit-button">Add Location</button>
+      <h1>Add State</h1>
+      <form onSubmit={addToStates}>
+        <label>State:</label>
+        <input type="text" name="state" placeholder="Enter state name" required />
+        <button type="submit">Add State</button>
       </form>
 
-      <h1 id="al-existing-title">Existing Locations</h1>
-      {locations.length > 0 ? (
-        <ul id="al-list">
-          {locations.map((location, index) => (
-            <li key={index} id={`al-location-${index}`}>
-              <h3 id={`al-city-name-${index}`}>City: {location.city}</h3>
-              <h3 id={`al-state-name-${index}`}>State: {location.state}</h3>
-            </li>
+      <h1>Add City</h1>
+      <form onSubmit={addToCities}>
+        <label>City:</label>
+        <input type="text" name="city" placeholder="Enter city name" required />
+
+        <label>Select State:</label>
+        <select value={selectedState} onChange={(e) => setSelectedState(e.target.value)} required>
+          <option value="">Select State</option>
+          {states.map((state) => (
+            <option key={state._id} value={state._id}>
+              {state.name}
+            </option>
           ))}
-        </ul>
-      ) : (
-        <p id="al-no-locations-message">No Locations have been added yet</p>
-      )}
+        </select>
+        <button type="submit">Add City</button>
+      </form>
+
+      <h1>Existing Locations</h1>
+      <ul>
+        {states.map((state) => (
+          <li key={state._id}>
+            <h3>{state.name}</h3>
+            <ul>
+              {cities
+                .filter((city) => city.state === state._id)
+                .map((city) => (
+                  <li key={city._id}>{city.name}</li>
+                ))}
+            </ul>
+          </li>
+        ))}
+      </ul>
     </div>
   );
 };

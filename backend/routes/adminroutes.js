@@ -14,4 +14,9 @@ router.get('/getsportslist',Admincontroller.getsportslist)
 router.post('/logout',Admincontroller.logout)
 router.post('/addsport',Admincontroller.addsport)
 router.post('/verifygroundagain',Admincontroller.verifygroundagain)
+router.get('/getstateslist',Admincontroller.getstateslist)
+router.get('/getcitieslist',Admincontroller.getcitieslist)
+router.post('/addstate',Admincontroller.addstate)
+router.post('/addcity',Admincontroller.addcity)
+
 module.exports = router;
