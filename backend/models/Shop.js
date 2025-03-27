@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const shopsportSchema = require('./Shopsport'); // Assuming shopsportSchema is in a separate file
+const City = require('./City');
 
 const shopSchema = new mongoose.Schema({
     sportname:{
@@ -27,7 +28,12 @@ const shopSchema = new mongoose.Schema({
     contact:{
         type:String
     },
-    availablesports: [shopsportSchema]
+    availablesports: [shopsportSchema],
+    city: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'City'
+    }
+
 });
 
 module.exports = mongoose.model('Shop', shopSchema);

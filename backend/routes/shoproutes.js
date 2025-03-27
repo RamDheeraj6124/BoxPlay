@@ -36,4 +36,5 @@ router.get('/checkrevenue',shopController.checkRevenue)
 router.post('/logout',shopController.logout)
 router.get('/venues',shopController.searchvenue)
 router.get('/getsportslist',shopController.getsportslist);
+router.get('/getcitieslist',shopController.getcitieslist);
 module.exports = router;

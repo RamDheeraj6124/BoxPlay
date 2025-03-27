@@ -4,6 +4,7 @@ const fs = require('fs');
 const path = require('path');
 const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
+const City = require('../models/City');
 const dns = require('dns');
 
 const validateEmailDomain = async (email) => {
@@ -73,7 +74,10 @@ exports.loginshop = async (req, res) => {
 
     try {
         // Find the shop by email
-        const shop = await Shop.findOne({ email }).exec();
+        const shop = await Shop.findOne({ email }).populate({
+            path: 'city',
+            populate: { path: 'state' }
+        });
         if (!shop) {
             return res.status(400).json({ msg: 'Invalid credentials' });
         }
@@ -131,17 +135,18 @@ exports.updateshop = async (req, res) => {
     }
 
     const shopId = req.session.shop._id;
-    const { shopname, address } = req.body;
+    const { shopname, address,cityobject } = req.body;
 
     try {
-        const updatedShop = await Shop.findByIdAndUpdate(shopId, { shopname, address }, { new: true });
+        const city = await City.findById(cityobject._id);
+        const updatedShop = await Shop.findByIdAndUpdate(shopId, { shopname, address,city }, { new: true });
 
         if (!updatedShop) {
             return res.status(404).json({ msg: 'Shop not found' });
         }
 
         req.session.shop = updatedShop; // Optionally update session data
-        res.status(200).json({ msg: 'Shop details updated successfully', updatedShop });
+        res.status(200).json({ msg: 'Shop details updated successfully'});
     } catch (err) {
         console.error(err.message);
         res.status(500).json({ msg: 'Server error' });
@@ -227,7 +232,7 @@ exports.addground = async (req, res) => {
         });
         req.session.shop = shop;
 
-        res.status(201).json({ msg: 'Ground added successfully!', shop });
+        res.status(201).json({ msg: 'Ground added successfully!' });
     } catch (error) {
         console.error('Error adding ground:', error);
         res.status(500).json({ msg: 'Server error' });
@@ -317,7 +322,14 @@ exports.loadVenues = async (req, res) => {
   }
 };
 
-
+exports.getcitieslist=async(req,res)=>{
+    try{
+        const cities = await City.find().populate('state');
+        res.status(200).json({ cities });
+    }catch(err){
+        next(err);
+    }
+}
 exports.loadGround = async (req, res) => {
     try {
         const { name } = req.body;
