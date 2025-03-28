@@ -24,7 +24,6 @@ const BookingPage = () => {
   const [platformpercentage,setplatformpercentage]=useState(0);
   const [groundfeedbacks,setGroundfeedbacks]=useState(null);
   const [shop,setShop]=useState([]);
-  const [iframelink,setIframelink]=useState(null);
   useEffect(() => {
     if (effectRan.current === false) {
       const fetchVenueData = async () => {
@@ -43,8 +42,7 @@ const BookingPage = () => {
             setPricePerHour(data.ground.priceperhour);
             extractAvailableDays(data.ground.availability);
             setShop(data.shop);
-            setIframelink(data.shop.iframelink);
-            console.log(iframelink)
+            console.log(shop)
             console.log(data.groundfeedbacks)
             const feedbacks=data.groundfeedbacks.filter(feedback => feedback.rating!=null)
             setGroundfeedbacks(feedbacks);
@@ -320,10 +318,13 @@ const BookingPage = () => {
           name={venueData.groundname}
           dimensions={venueData.grounddimensions ? `Length: ${venueData.grounddimensions.length}m, Width: ${venueData.grounddimensions.width}m` : 'No dimensions available'}
           address={address ? `Address: ${address}` : 'Address not Available'}
+
           image={venueData.image}
           rating={ groundfeedbacks && groundfeedbacks.length > 0 
             ? (groundfeedbacks.reduce((sum, feedback) => sum + (feedback.rating || 0), 0) / groundfeedbacks.length).toFixed(2) 
             : 'No ratings yet'}
+          Location={shop.city}  
+          LocationLink={shop.locationlink}  
           ratingCount={groundfeedbacks ? groundfeedbacks.length : 0}
           timing={venueData.availability || []}
           groundfeedbacks={groundfeedbacks || []}
@@ -332,20 +333,7 @@ const BookingPage = () => {
         />
         <div className="bp-side-info">
           <BookingInfo pricePerHour={venueData.priceperhour} onBookNow={openBookingModal} />
-          {iframelink && (
-                <div>
-                    <h4>Embedded Map:</h4>
-                    <iframe
-                        src={iframelink}
-                        width="100%"
-                        height="350"
-                        style={{ border: "0", borderRadius: "10px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
-                        allowFullScreen
-                        loading="lazy"
-                        referrerPolicy="no-referrer-when-downgrade"
-                    />
-                </div>
-            )}
+
             
         </div>
       </div>
@@ -393,7 +381,7 @@ const BookingPage = () => {
   );
 };
 
-const VenueDetails = ({ name, dimensions, address, image, rating, ratingCount, timing,groundfeedbacks, facilities, pricePerHour }) => {
+const VenueDetails = ({ name, dimensions, address, image, rating,Location,LocationLink, ratingCount, timing,groundfeedbacks, facilities, pricePerHour }) => {
   return (
     <div className="bp-venue-details">
       <h2>{name}</h2>
@@ -406,6 +394,14 @@ const VenueDetails = ({ name, dimensions, address, image, rating, ratingCount, t
       <div className="bp-row">
         <span className="bp-attribute">Address:</span>
         <span className="bp-value">{address}</span>
+      </div>
+      <div className="bp-row">
+     <span className="bp-attribute">Location:</span>
+     <span className="bp-value">{Location?.name || 'Yet to be Provided'},{Location?.state?.name || 'Yet to be Provided'}</span>
+     </div>
+
+      <div className="bp-row">
+        <span className="bp-value"><a href={LocationLink}>Location Link</a></span>
       </div>
       <div className="bp-row">
         <span className="bp-attribute">Price per hour:</span>

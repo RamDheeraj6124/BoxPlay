@@ -7,6 +7,8 @@ const Sport = require('../models/Sport');
 const City = require('../models/City');
 const dns = require('dns');
 const axios=require('axios');
+const querystring = require('query-string');
+require('dotenv').config();
 
 const validateEmailDomain = async (email) => {
     try {
@@ -128,49 +130,10 @@ exports.checkshopsession = (req, res) => {
         res.status(400).json({ msg: "Session does not exist" });
     }
 };
-async function convertToIframe(shareUrl) {
-  try {
-    // Step 1: Follow all redirects to get final URL
-    const response = await axios.get(shareUrl, {
-      maxRedirects: 5,
-      validateStatus: () => true
-    });
-    const finalUrl = response.request.res.responseUrl;
 
-    // Step 2: Try different extraction methods
-    let embedUrl;
 
-    // Method 1: Extract from /maps/place/ URLs
-    const placeMatch = finalUrl.match(/maps\/place\/([^/]+)/);
-    if (placeMatch) {
-      const placeId = placeMatch[1].split('@')[0]; // Handle cases with @coordinates
-      embedUrl = `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(placeId)}`;
-    }
 
-    // Method 2: Extract from @coordinates
-    const coordMatch = finalUrl.match(/@([-\d.]+),([-\d.]+),(\d+)z/);
-    if (coordMatch && !embedUrl) {
-      embedUrl = `https://www.google.com/maps/embed?pb=!1m14!1m12!1m3!1d0!2d0!3d0!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!4m2!3d${coordMatch[1]}!4d${coordMatch[2]}`;
-    }
 
-    // Method 3: Fallback to search query
-    if (!embedUrl) {
-      const searchMatch = finalUrl.match(/maps\/search\/([^/]+)/) || 
-                         finalUrl.match(/maps\?q=([^&]+)/);
-      if (searchMatch) {
-        embedUrl = `https://www.google.com/maps/embed/v1/place?q=${encodeURIComponent(searchMatch[1])}`;
-      }
-    }
-
-    if (!embedUrl) throw new Error('No location data found in URL');
-
-    return embedUrl;
-  } catch (error) {
-    console.error('Conversion error:', error.message);
-    console.log('Problem URL:', shareUrl);
-    return null;
-  }
-}
 exports.updateshop = async (req, res) => {
     if (!req.session.shop) {
         return res.status(401).json({ msg: 'No shop logged in' });
@@ -181,8 +144,7 @@ exports.updateshop = async (req, res) => {
 
     try {
         const city = await City.findById(cityobject._id);
-        const iframelink = await convertToIframe(locationlink);
-        const updatedShop = await Shop.findByIdAndUpdate(shopId, { shopname, address,city,locationlink,iframelink }, { new: true });
+        const updatedShop = await Shop.findByIdAndUpdate(shopId, { shopname, address,city,locationlink}, { new: true });
 
         if (!updatedShop) {
             return res.status(404).json({ msg: 'Shop not found' });
@@ -380,7 +342,10 @@ exports.loadGround = async (req, res) => {
         const { name } = req.body;
         const shopname = name.split('_')[0].replace(/-/g, ' ');
         const groundname = name.split('_')[1].replace(/-/g, ' ');        
-        const shop = await Shop.findOne({ shopname });
+        const shop = await Shop.findOne({ shopname }).populate({
+            path: 'city',
+            populate: { path: 'state' }
+        });
         if (!shop) {
             return res.status(404).json({ message: 'Shop not found.' });
         }
@@ -417,7 +382,7 @@ exports.loadGround = async (req, res) => {
                 review: feedback.feedback?.review || null,
                 feedbackDate: feedback.feedback?.feedbackDate || null,
             }));
-        let iframelink=null;    
+  
 
     res.status(200).json({shop,ground,address,groundfeedbacks});
     } catch (error) {

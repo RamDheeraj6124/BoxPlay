@@ -35,9 +35,6 @@ const shopSchema = new mongoose.Schema({
     },
     locationlink:{
         type:String
-    },
-    iframelink:{
-        type:String
     }
 
 });
