@@ -32,6 +32,12 @@ const shopSchema = new mongoose.Schema({
     city: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'City'
+    },
+    locationlink:{
+        type:String
+    },
+    iframelink:{
+        type:String
     }
 
 });

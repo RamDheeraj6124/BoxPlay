@@ -102,7 +102,7 @@ const ShopDashboard = () => {
 
 const updatesubmit = async (e) => {
   e.preventDefault();
-  const { shopname, address, cityobject } = e.target.elements;
+  const { shopname, address, cityobject,locationlink } = e.target.elements;
 
   try {
     const cityData = JSON.parse(cityobject.value);
@@ -115,7 +115,8 @@ const updatesubmit = async (e) => {
       body: JSON.stringify({
         shopname: shopname.value,
         address: address.value,
-        cityobject: cityData
+        cityobject: cityData,
+        locationlink: locationlink.value
       }),
       credentials: 'include'
     });
@@ -125,7 +126,8 @@ const updatesubmit = async (e) => {
         ...prevState,
         shopname: shopname.value,
         address: address.value,
-        city: cityData
+        city: cityData,
+        locationlink: locationlink.value
       }));
       alert('Shop details updated successfully');
     } else {
@@ -357,6 +359,19 @@ const updatesubmit = async (e) => {
         ) : (
           <p>No cities available</p>
         )}
+          <div className="sd-location-link">
+            <label className="sd-label" htmlFor="locationlink">Google Location Link:</label>
+            <input
+              className="sd-input"
+              type="text"
+              name="locationlink"
+              id="locationlink"
+              placeholder="Google Location Link"
+              defaultValue={state?.locationlink}
+              required
+            />
+          </div>
+
         <button className="sd-button" type="submit">Update Shop Details</button>
       </form>
 

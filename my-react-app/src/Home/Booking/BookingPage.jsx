@@ -23,7 +23,8 @@ const BookingPage = () => {
   const [sessionstate,setsessionstate]=useState(false);
   const [platformpercentage,setplatformpercentage]=useState(0);
   const [groundfeedbacks,setGroundfeedbacks]=useState(null);
-
+  const [shop,setShop]=useState([]);
+  const [iframelink,setIframelink]=useState(null);
   useEffect(() => {
     if (effectRan.current === false) {
       const fetchVenueData = async () => {
@@ -41,6 +42,9 @@ const BookingPage = () => {
             setAddress(data.address);
             setPricePerHour(data.ground.priceperhour);
             extractAvailableDays(data.ground.availability);
+            setShop(data.shop);
+            setIframelink(data.shop.iframelink);
+            console.log(iframelink)
             console.log(data.groundfeedbacks)
             const feedbacks=data.groundfeedbacks.filter(feedback => feedback.rating!=null)
             setGroundfeedbacks(feedbacks);
@@ -328,6 +332,21 @@ const BookingPage = () => {
         />
         <div className="bp-side-info">
           <BookingInfo pricePerHour={venueData.priceperhour} onBookNow={openBookingModal} />
+          {iframelink && (
+                <div>
+                    <h4>Embedded Map:</h4>
+                    <iframe
+                        src={iframelink}
+                        width="100%"
+                        height="350"
+                        style={{ border: "0", borderRadius: "10px", boxShadow: "0 4px 8px rgba(0, 0, 0, 0.1)" }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                    />
+                </div>
+            )}
+            
         </div>
       </div>
 

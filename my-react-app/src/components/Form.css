@@ -129,3 +129,32 @@ h2 {
     color: #1ce057;
     opacity: 1;
 }
+.highlight {
+    color: rgb(246, 187, 187);
+  }
+  .logo {
+    position: absolute; 
+    top: 20px; 
+    left: 30px; 
+    z-index: 10; 
+    filter: drop-shadow(0 0 5px #000); /* Outline effect */
+    opacity: 1; 
+    transition: opacity 0.3s; 
+}
+
+.logo {
+    position: absolute; 
+    top: 20px; 
+    left: 30px; 
+    z-index: 10; 
+    filter: drop-shadow(0 0 8px #000) 
+            drop-shadow(0 0 12px #000);  /* Double shadow for extra darkness */
+    opacity: 1; 
+    transition: opacity 0.3s; 
+}
+
+.logo a {
+    color: white;
+    font-size: 1.5rem;
+    text-decoration: none;
+  }

@@ -47,6 +47,9 @@ function Login() {
 
     return (
         <div className="background-wrapper">
+            <div className="logo">
+                <a href="/"><span className="highlight">B</span>ox<span className="highlight">P</span>lay</a>
+            </div>
             <div className='shoplink'>
                 <a href="/shoplogin" className='underline'><h1>Shop User</h1></a>
             </div>
