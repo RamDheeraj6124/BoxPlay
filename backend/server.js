@@ -61,6 +61,17 @@ app.use('/user', userroutes);
 app.use('/shop', shoproutes);
 app.use('/admin', adminroutes);
 app.use(errorHandler);
-
+const Redis = require("ioredis");
+const redis = new Redis(); // Default: localhost:6379
+  
+  redis.on("connect", () => {
+      console.log("Connected to Redis!");
+  });
+  
+  redis.on("error", (err) => {
+      console.error("Redis error: ", err);
+  });
+  
+module.exports = redis;
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
