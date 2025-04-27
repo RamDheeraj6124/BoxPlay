@@ -61,3 +61,6 @@ jobs:
           node server.js &
           sleep 10
           curl --fail http://localhost:5000 || exit 1
+exclude:
+  - node_modules
+
