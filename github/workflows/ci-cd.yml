@@ -1,14 +1,17 @@
-name: Fullstack App CI/CD
+name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "main" ]
+    branches:
+      - main
 
 jobs:
+  # Frontend Build Job (React App)
   frontend:
-    name: Frontend - React App
+    name: Frontend - React App Build
     runs-on: ubuntu-latest
 
     defaults:
@@ -22,23 +25,20 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
 
-      - name: Install frontend dependencies
-        run: npm install
+      - name: Clean install frontend dependencies
+        run: |
+          rm -rf node_modules package-lock.json
+          npm install
 
       - name: Build frontend
         run: npm run build
 
+  # Backend Build Job (Node.js Express)
   backend:
-    name: Backend - Node.js API
+    name: Backend - Node.js Express App Build
     runs-on: ubuntu-latest
-
-    services:
-      mongo:
-        image: mongo:4.4
-        ports:
-          - 27017:27017
 
     defaults:
       run:
@@ -48,19 +48,20 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Setup Node.js
+      - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 18
 
       - name: Install backend dependencies
-        run: npm install
-
-      - name: Run backend server
         run: |
-          node server.js &
-          sleep 10
-          curl --fail http://localhost:5000 || exit 1
-exclude:
-  - node_modules
+          rm -rf node_modules package-lock.json
+          npm install
 
+      - name: Run backend tests
+        run: npm test
+
+      - name: Start backend server
+        run: |
+          nohup node server.js &
+          sleep 10  # Allow server to start
