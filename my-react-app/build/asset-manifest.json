@@ -1,19 +1,31 @@
 {
   "files": {
-    "main.css": "/static/css/main.a9b47149.css",
-    "main.js": "/static/js/main.eda6173f.js",
+    "main.css": "/static/css/main.886f720e.css",
+    "main.js": "/static/js/main.10a76c11.js",
     "static/media/boxicons.svg": "/static/media/boxicons.9e2b21b135bc7d4c803f.svg",
+    "static/media/Screenshot 2024-09-22 194802.png": "/static/media/Screenshot 2024-09-22 194802.60bfa175bffb6fe0fe7b.png",
     "static/media/boxicons.eot": "/static/media/boxicons.65a8ce52fc5427e8f94d.eot",
     "static/media/boxicons.woff": "/static/media/boxicons.d12afc36557395143e4b.woff",
     "static/media/boxicons.ttf": "/static/media/boxicons.db9ddb1898dbd76badca.ttf",
+    "static/media/baseball.jpg": "/static/media/baseball.d411aa3bd759faa5a1d5.jpg",
+    "static/media/football.jpg": "/static/media/football.e33bfad12e6ea23e9241.jpg",
+    "static/media/swimming.jpg": "/static/media/swimming.ea9903076df517bbf752.jpg",
     "static/media/Background.jpg": "/static/media/Background.3332bfc829a8ec863e9b.jpg",
+    "static/media/ground2.avif": "/static/media/ground2.fdadc0ef1f0153ff77c7.avif",
     "static/media/boxicons.woff2": "/static/media/boxicons.df635aaf04cd75132f62.woff2",
+    "static/media/MSD2.jpg": "/static/media/MSD2.3cc6f0c6c6188b8d708f.jpg",
+    "static/media/hockey.jpg": "/static/media/hockey.0100bd0f6fa1c36c0386.jpg",
+    "static/media/volleyball.jpg": "/static/media/volleyball.e0a1c690247980d6aa38.jpg",
+    "static/media/tabletennis.jpg": "/static/media/tabletennis.7c3a259072d9620aef2f.jpg",
+    "static/media/LearnImage2.jpg": "/static/media/LearnImage2.c941d8803ec4e4e87dc1.jpg",
+    "static/media/BDM.jpg": "/static/media/BDM.d8c861798b11e5b96341.jpg",
+    "static/media/tennis.jpg": "/static/media/tennis.342bee4b1a8432c2f2ec.jpg",
     "index.html": "/index.html",
-    "main.a9b47149.css.map": "/static/css/main.a9b47149.css.map",
-    "main.eda6173f.js.map": "/static/js/main.eda6173f.js.map"
+    "main.886f720e.css.map": "/static/css/main.886f720e.css.map",
+    "main.10a76c11.js.map": "/static/js/main.10a76c11.js.map"
   },
   "entrypoints": [
-    "static/css/main.a9b47149.css",
-    "static/js/main.eda6173f.js"
+    "static/css/main.886f720e.css",
+    "static/js/main.10a76c11.js"
   ]
 }
