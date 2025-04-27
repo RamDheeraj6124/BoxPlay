@@ -1,4 +1,4 @@
-# _config.yml
 exclude:
-  - node_modules/
-  - my-react-app/node_modules/
+  - node_modules
+  - build
+  - dist
