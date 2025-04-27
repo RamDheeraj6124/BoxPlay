@@ -615,3 +615,8 @@
 ::1 - - [28/Mar/2025:10:59:32 +0000] "GET /shop/loadvenues HTTP/1.1" 200 802144 "-" "PostmanRuntime/7.43.2"
 ::1 - - [28/Mar/2025:10:59:36 +0000] "GET /shop/loadvenues HTTP/1.1" 200 802144 "-" "PostmanRuntime/7.43.2"
 ::1 - - [28/Mar/2025:10:59:38 +0000] "GET /shop/loadvenues HTTP/1.1" 200 802144 "-" "PostmanRuntime/7.43.2"
+::1 - - [28/Mar/2025:11:24:32 +0000] "GET /user/checksession HTTP/1.1" 400 32 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [28/Mar/2025:11:24:32 +0000] "GET /shop/checkshopsession HTTP/1.1" 400 32 "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [28/Mar/2025:11:24:32 +0000] "GET /shop/getsportslist HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [28/Mar/2025:11:24:32 +0000] "GET /shop/getsportslist HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
+::1 - - [28/Mar/2025:11:24:32 +0000] "GET /shop/loadvenues HTTP/1.1" 304 - "http://localhost:3000/" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36"
