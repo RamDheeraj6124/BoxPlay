@@ -48,6 +48,7 @@ import BasketballVenue from './BookPage/BasketballVenue';
 import ContactPage from './Footer/ContactPage';
 import QueryMode from './Admin/Queries';
 import AddLocation from './Admin/AddLocation';
+import PageNotFound from './PageNotFound';
 
 
 
@@ -66,6 +67,7 @@ function App() {
           <Route path='/Book' element={<Venue2 />} />
           <Route path='/play' element={<TodayBooking />} />
           <Route path='/' element={<Home />} />
+          <Route path='*' element={<PageNotFound/>} />
           <Route path='/Learnfootball' element={<Slide />} />
           <Route path='/Learncricket' element={<CricketSlide />} />
           <Route path="/Booking/:name" element={<BookingPage />} />
