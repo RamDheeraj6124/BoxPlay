@@ -84,7 +84,6 @@ app.use(session({
     sameSite: 'none', // Required for cross-site cookies
     httpOnly: true, // Prevents client-side JS access
     maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
-    domain: '.onrender.com', // Allows cookies across *.onrender.com subdomains
   },
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
