@@ -29,8 +29,7 @@ const swaggerOptions = {
       description: 'API docs for your Node.js application',
     },
     servers: [
-      { url: 'http://localhost:5000' },
-      { url: 'https://your-production-url.com' },
+      { url: 'https://boxplay-fnho.onrender.com' },
     ],
     components: {
       securitySchemes: {
