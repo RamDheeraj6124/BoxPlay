@@ -68,7 +68,7 @@ app.use(morgan('combined', { stream: accessLogStream }));
 morgan.token("timed", "A new :method request :url :status ");
 
 app.use(cors({
-  origin: 'http://localhost:3000',
+  origin: 'https://boxplay-2.onrender.com',
   methods: 'GET, POST, PUT, DELETE',
   allowedHeaders: 'Content-Type, Authorization',
   credentials: true
