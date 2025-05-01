@@ -1,15 +1,13 @@
-# Use the official Node.js 20 image as the base image
 FROM node:20
 
-# Set the working directory inside the container
 WORKDIR /app
 
-# Install dependencies
+# Copy package files and install dependencies using npm ci
 COPY package*.json ./
-RUN npm install
+RUN npm cache clean --force && npm ci
 
 # Ensure react-scripts has execute permissions
-RUN chmod +x node_modules/.bin/react-scripts
+RUN chmod -R 777 node_modules
 
 # Copy the rest of the application code
 COPY . .
