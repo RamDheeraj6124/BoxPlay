@@ -15,6 +15,7 @@ const path = require('path');
 var rfs = require('rotating-file-stream');
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
+const MongoStore = require('connect-mongo');
 
 const app = express();
 dbconnect();
@@ -86,6 +87,13 @@ app.use(session({
     maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
     domain: '.onrender.com', // Allows cookies across *.onrender.com subdomains
   },
+  store: MongoStore.create({
+    mongoUrl: process.env.MONGO_URI,
+    ttl: 24 * 60 * 60,
+    autoRemove: 'interval',
+    autoRemoveInterval: 60, // Cleanup expired sessions every 60 mins
+    touchAfter: 3600, // Only sync to DB if session inactive for 1 hour (reduces writes)
+  }),
 }));
 
 app.use('/user', userroutes);
