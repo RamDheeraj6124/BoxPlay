@@ -18,6 +18,7 @@ const ShopDashboard = () => {
   const effectRan1 = useRef(false);
   const [city, setCity] = useState([]);
   const [cities, setCities] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const getSports = async () => { 
@@ -34,71 +35,69 @@ const ShopDashboard = () => {
         console.log(err);
       }
     };
-
+  
+    const checkShopSession = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch('http://localhost:5000/shop/checkshopsession', {
+          credentials: 'include'
+        });
+  
+        if (!response.ok) {
+          navigate('/shoplogin');
+        } else {
+          const data = await response.json();
+          console.log('Shop Data:', data);
+          setState(data.shop);
+          setCity(data.shop.city);
+          setGrounds(data.shop.availablesports || []);
+        }
+  
+        const revenueresponse = await fetch('http://localhost:5000/shop/checkrevenue', {
+          method: 'GET',
+          credentials: 'include'
+        });
+  
+        if (revenueresponse.ok) {
+          const revenueData = await revenueresponse.json();
+          console.log(revenueData); 
+          setGroundRevenue(revenueData.groundRevenues);
+        } else {
+          throw new Error("Expected JSON, but received: ");
+        }
+  
+        if (city !== null) {
+          const getcitieslist = await fetch('http://localhost:5000/shop/getcitieslist', {
+            method: 'GET',
+            credentials: 'include'
+          });
+  
+          if (getcitieslist.ok) {
+            const data = await getcitieslist.json();
+            setCities(data.cities);
+          }                  
+        }
+  
+      } catch (error) {
+        console.error('Error fetching shop session:', error);
+        alert('An error occurred while fetching shop session.');
+      }finally{
+        setLoading(false);
+      }
+    };
+  
     if (!effectRan.current) {
+      // Run both functions once
       getSports();
-      effectRan1.current = true;
+      checkShopSession();
+      effectRan.current = true;
     }
-
+  
     return () => {
-      effectRan1.current = true;
+      effectRan.current = false;
     };
-  }, []);
-
-  useEffect(() => {
-    if (effectRan.current === false) {
-        const checkShopSession = async () => {
-            try {
-                const response = await fetch('http://localhost:5000/shop/checkshopsession', {
-                    credentials: 'include'
-                });
-
-                if (!response.ok) {
-                    navigate('/shoplogin');
-                } else {
-                    const data = await response.json();
-                    console.log('Shop Data:', data);
-                    setState(data.shop);
-                    setCity(data.shop.city);
-                    setGrounds(data.shop.availablesports || []);
-                }
-
-                const revenueresponse = await fetch('http://localhost:5000/shop/checkrevenue', {
-                    method: 'GET',
-                    credentials: 'include'
-                });
-
-                if (revenueresponse.ok) {
-                    const revenueData = await revenueresponse.json();
-                    console.log(revenueData); 
-                    setGroundRevenue(revenueData.groundRevenues);
-                } else {
-                    throw new Error("Expected JSON, but received: ");
-                }
-                if(city!==null){
-                const getcitieslist=await fetch('http://localhost:5000/shop/getcitieslist',{
-                  method: 'GET',
-                  credentials: 'include'
-                });
-                if(getcitieslist.ok){
-                  const data=await getcitieslist.json();
-                  setCities(data.cities);
-                }                  
-                }
-
-            } catch (error) {
-                console.error('Error fetching shop session:', error);
-                alert('An error occurred while fetching shop session.');
-            }
-        };
-
-        checkShopSession();
-        effectRan.current = true;
-    }
-    return () => {
-        effectRan.current = false;
-    };
-}, [navigate]);
+  }, [navigate]);
+  
 
 const updatesubmit = async (e) => {
   e.preventDefault();
@@ -427,42 +426,45 @@ const updatesubmit = async (e) => {
           onChange={handleDaysPerWeekChange}
         />
 
-        {Array.from({ length: daysPerWeek }).map((_, index) => (
-          <div key={index} className="sd-day-container">
-            <label className="sd-label" htmlFor={`day-${index}`}>Day:</label>
-            <select
-              className="sd-select"
-              name={`day-${index}`}
-              id={`day-${index}`}
-              value={daysArray[index] || ''}
-              onChange={(e) => handleDayChange(index, e.target.value)}
-              required
-            >
-              <option value="" disabled>Select Day</option>
-              {generateDayOptions()}
-            </select>
-            <label className="sd-label" htmlFor={`start-time-${index}`}>Start Time:</label>
-            <input
-              className="sd-input"
-              type="time"
-              name={`start-time-${index}`}
-              id={`start-time-${index}`}
-              value={timesArray[index]?.start || ''}
-              onChange={(e) => handleTimeChange(index, 'start', e.target.value)}
-              required
-            />
-            <label className="sd-label" htmlFor={`end-time-${index}`}>End Time:</label>
-            <input
-              className="sd-input"
-              type="time"
-              name={`end-time-${index}`}
-              id={`end-time-${index}`}
-              value={timesArray[index]?.end || ''}
-              onChange={(e) => handleTimeChange(index, 'end', e.target.value)}
-              required
-            />
-          </div>
-        ))}
+{daysPerWeek && Array.from({ length: daysPerWeek }).map((_, index) => (
+  <div key={index} className="sd-day-container">
+    <label className="sd-label" htmlFor={`day-${index}`}>Day:</label>
+    <select
+      className="sd-select"
+      name={`day-${index}`}
+      id={`day-${index}`}
+      value={daysArray[index] || ''}
+      onChange={(e) => handleDayChange(index, e.target.value)}
+      required
+    >
+      <option value="" disabled>Select Day</option>
+      {generateDayOptions()}
+    </select>
+    
+    <label className="sd-label" htmlFor={`start-time-${index}`}>Start Time:</label>
+    <input
+      className="sd-input"
+      type="time"
+      name={`start-time-${index}`}
+      id={`start-time-${index}`}
+      value={timesArray[index]?.start || ''}
+      onChange={(e) => handleTimeChange(index, 'start', e.target.value)}
+      required
+    />
+    
+    <label className="sd-label" htmlFor={`end-time-${index}`}>End Time:</label>
+    <input
+      className="sd-input"
+      type="time"
+      name={`end-time-${index}`}
+      id={`end-time-${index}`}
+      value={timesArray[index]?.end || ''}
+      onChange={(e) => handleTimeChange(index, 'end', e.target.value)}  
+      required
+    />
+  </div>
+   ))}
+
         {daysPerWeek > 0 ? (
           <button className="sd-button" type="submit">Add Ground</button>
         ):(<p>Please select at least one day to add a ground</p>)
