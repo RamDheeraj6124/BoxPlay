@@ -76,7 +76,7 @@ app.use(cors({
 
 app.use(session({
   name: 'sessionId', // Cookie name (optional)
-  secret: process.env.SESSION_SECRET, // Must be set in Render env vars
+  secret: process.env.SESSION_SECRET|| "project", // Must be set in Render env vars
   resave: false,
   saveUninitialized: false,
   cookie: {
