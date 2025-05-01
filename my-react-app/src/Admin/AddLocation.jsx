@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import "./AddLocation.css";
 
+
 const AddLocation = () => {
   const [states, setStates] = useState([]);
   const [cities, setCities] = useState([]);
@@ -10,7 +11,7 @@ const AddLocation = () => {
   useEffect(() => {
     const fetchStates = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/getstateslist");
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getstateslist`);
         const data = await res.json();
         setStates(data.states);
       } catch (err) {
@@ -20,7 +21,7 @@ const AddLocation = () => {
 
     const fetchCities = async () => {
       try {
-        const res = await fetch("http://localhost:5000/admin/getcitieslist");
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getcitieslist`);
         const data = await res.json();
         setCities(data.cities);
       } catch (err) {
@@ -49,7 +50,7 @@ const AddLocation = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/admin/addstate", {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/addstate`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: stateName })
@@ -79,7 +80,7 @@ const AddLocation = () => {
     }
 
     try {
-      const res = await fetch("http://localhost:5000/admin/addcity", {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/addcity`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: cityName, stateId: selectedState })

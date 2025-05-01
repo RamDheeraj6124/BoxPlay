@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import './Form.css';
-
 function Login() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -22,7 +21,7 @@ function Login() {
         }
 
         try {
-            const res = await fetch('http://localhost:5000/shop/shoplogin', {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/shoplogin`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

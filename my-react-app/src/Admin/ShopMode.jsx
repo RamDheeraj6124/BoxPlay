@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './ShopMode.css';
 
+
 const ShopMode = () => {
     const [username, setUsername] = useState(null);
     const [shops, setShops] = useState([]);
@@ -12,7 +13,7 @@ const ShopMode = () => {
 
     useEffect(() => {
         const checkSession = async () => {
-            const response = await fetch('http://localhost:5000/admin/checksession', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/checksession`, {
                 credentials: 'include'
             });
 
@@ -47,7 +48,7 @@ const ShopMode = () => {
     const deleteground = async (e,shopid, groundName) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:5000/admin/deleteground`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/deleteground`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'
@@ -70,7 +71,7 @@ const ShopMode = () => {
     const verifyground = async (e,shopid, groundName) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:5000/admin/verifygroundagain`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/verifygroundagain`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

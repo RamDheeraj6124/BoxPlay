@@ -17,7 +17,7 @@ function SearchResults() {
     if (effectRan.current === false) {
       const fetchVenues = async () => {
         try {
-          const response = await fetch('http://localhost:5000/shop/searchloadvenues', {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/searchloadvenues`, {
             credentials: 'include'
           });
           if (response.ok) {

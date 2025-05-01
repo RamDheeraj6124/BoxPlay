@@ -52,7 +52,7 @@ const ShopRegister = () => {
 
     try {
       // API call to register a new shop
-      const res = await fetch('http://localhost:5000/shop/shopregister', {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/shopregister`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

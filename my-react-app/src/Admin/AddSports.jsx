@@ -1,6 +1,7 @@
 import React, { useEffect, useState, useRef } from "react";
 import './AddSports.css';
 
+
 const AddSports = () => {
   const [sportlist, getSportsList] = useState([]);
   const effectRan = useRef(false);
@@ -8,7 +9,7 @@ const AddSports = () => {
   useEffect(() => {
     const getSports = async () => { 
       try { 
-        const res = await fetch("http://localhost:5000/admin/getsportslist", { 
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getsportslist`, { 
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -46,7 +47,7 @@ const AddSports = () => {
     };
 
     try {
-      const res = await fetch("http://localhost:5000/admin/addsport", {
+      const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/addsport`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

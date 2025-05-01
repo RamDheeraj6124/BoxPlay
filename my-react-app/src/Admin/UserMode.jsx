@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 
+
 const UserMode = () => {
     const [username, setUsername] = useState(null);
     const [users, setUsers] = useState([]);
@@ -12,7 +13,7 @@ const UserMode = () => {
 
     useEffect(() => {
         const checkSession = async () => {
-            const response = await fetch('http://localhost:5000/admin/checksession', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/checksession`, {
                 credentials: 'include'
             });
 
@@ -43,7 +44,7 @@ const UserMode = () => {
     const deleteuser = async (e,userid) => {
         e.preventDefault();
         try {
-            const response = await fetch(`http://localhost:5000/admin/deleteuser`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/deleteuser`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

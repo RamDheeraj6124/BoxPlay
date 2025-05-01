@@ -13,7 +13,7 @@ function Venue() {
     if (effectRan.current === false) {
       const venueload = async () => {
         try {
-          const response = await fetch('http://localhost:5000/shop/loadvenues', {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/loadvenues`, {
             credentials: 'include'
           });
 

@@ -36,7 +36,7 @@ function Register() {
             setConfirmPasswordError('');
         }
         try {
-            const res = await fetch('http://localhost:5000/user/signup', {
+            const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/signup`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

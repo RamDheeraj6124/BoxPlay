@@ -15,7 +15,7 @@ const VerifyShopMode = () => {
     useEffect(() => {
         const checkSession = async () => {
             try {
-                const response = await fetch('http://localhost:5000/admin/checksession', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/checksession`, {
                     credentials: 'include'
                 });
 
@@ -48,7 +48,7 @@ const VerifyShopMode = () => {
 
     const fetchSportTypes = async () => {
         try {
-            const response = await fetch('http://localhost:5000/api/sports', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/sports`, {
                 credentials: 'include'
             });
             
@@ -95,7 +95,7 @@ const VerifyShopMode = () => {
         e.preventDefault();
 
         try {
-            const response = await fetch(`http://localhost:5000/admin/adminverify`, {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/adminverify`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json'

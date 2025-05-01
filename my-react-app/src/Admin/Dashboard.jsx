@@ -2,6 +2,7 @@ import './Dashboard.css';
 import React, { useEffect, useState } from 'react';
 import { useNavigate, Link, Outlet } from 'react-router-dom';
 
+
 function Dashboard() {
   const [username, setUsername] = useState(null);
   const [totalUsers, setTotalUsers] = useState(0);
@@ -16,7 +17,7 @@ function Dashboard() {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        const response = await fetch('http://localhost:5000/admin/checksession', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/checksession`, {
           credentials: 'include'
         });
 
@@ -65,7 +66,7 @@ function Dashboard() {
     e.preventDefault();
 
     try {
-      const response = await fetch('http://localhost:5000/admin/fixpercentage', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/fixpercentage`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -85,7 +86,7 @@ function Dashboard() {
     }
   };
   const logout = async () => {
-    await fetch('http://localhost:5000/admin/logout', { credentials: 'include', method: 'POST' });
+    await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/logout`, { credentials: 'include', method: 'POST' });
     navigate('/');
 };
 

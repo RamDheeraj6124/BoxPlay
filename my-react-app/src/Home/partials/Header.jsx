@@ -18,7 +18,7 @@ const Header = () => {
             hasCheckedSessions.current = true;
 
             try {
-                const userResponse = await fetch('http://localhost:5000/user/checksession', {
+                const userResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/checksession`, {
                     credentials: 'include'
                 });
 
@@ -30,7 +30,7 @@ const Header = () => {
                     setUsername(null);
                 }
 
-                const shopResponse = await fetch('http://localhost:5000/shop/checkshopsession', {
+                const shopResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/checkshopsession`, {
                     credentials: 'include'
                 });
 
@@ -46,7 +46,7 @@ const Header = () => {
     }, [navigate]);
 
     const handleLogout = async () => {
-        await fetch('http://localhost:5000/user/logout', { credentials: 'include', method: 'POST' });
+        await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/logout`, { credentials: 'include', method: 'POST' });
         setUsername(null);
         navigate('/');
     };

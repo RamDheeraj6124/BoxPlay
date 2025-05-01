@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import './AdminDashboard.css';
 
+
 const QueryMode = () => {
     const [queries, setQueries] = useState(null);
     const [username, setUsername] = useState(null);
@@ -12,7 +13,7 @@ const QueryMode = () => {
 
     useEffect(() => {
         const checkSession = async () => {
-            const response = await fetch('http://localhost:5000/admin/checksession', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/checksession`, {
                 credentials: 'include'
             });
 
@@ -46,7 +47,7 @@ const QueryMode = () => {
     const sendReply = async (e, queryId) => {
         e.preventDefault();
 
-        const response = await fetch(`http://localhost:5000/admin/sendreply`, {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/sendreply`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

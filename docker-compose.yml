@@ -1,3 +1,25 @@
+#version: "3.8"
+
+#services:
+#  backend:
+#   build: 
+#      context: ./backend
+#    ports:
+#      - "${PORT_BACKEND}:${PORT_BACKEND}"
+#    environment:
+#      - MONGO_URI=mongodb://host.docker.internal:${PORT_MONGO}/${MONGO_DBNAME}
+#      - JWT_SECRET=${JWT_SECRET}
+#      - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
+
+#  frontend:
+#    build:
+#      context: ./my-react-app
+#    ports:
+#      - "${PORT_FRONTEND}:${PORT_FRONTEND}"
+#    depends_on:
+#      - backend
+
+
 version: "3.8"
 
 services:
@@ -7,7 +29,7 @@ services:
     ports:
       - "${PORT_BACKEND}:${PORT_BACKEND}"
     environment:
-      - MONGO_URI=mongodb://host.docker.internal:${PORT_MONGO}/${MONGO_DBNAME}
+      - MONGO_URI=${MONGO_URI}
       - JWT_SECRET=${JWT_SECRET}
       - GOOGLE_MAPS_API_KEY=${GOOGLE_MAPS_API_KEY}
 

@@ -8,7 +8,7 @@ const TodayBooking = () => {
     useEffect(() => {
         const fetchBookings = async () => {
             try {
-                const response = await fetch('http://localhost:5000/shop/todaybookings',{
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/todaybookings`,{
                     method: 'GET',
                     credentials:'include'
                 });

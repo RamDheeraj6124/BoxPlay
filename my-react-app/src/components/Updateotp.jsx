@@ -20,7 +20,7 @@ const Updateotp = () => {
   // Handle OTP form submission
   const handleOtpSubmit = async (e) => {
     e.preventDefault();
-    const response = await fetch('http://localhost:5000/user/sendOTP', {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/sendOTP`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email }),
@@ -41,7 +41,7 @@ const Updateotp = () => {
       return;
     }
 
-    const response = await fetch('http://localhost:5000/user/resetPassword', {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/resetPassword`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, otp, newPassword }),

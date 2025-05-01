@@ -3,6 +3,7 @@ import { Pie } from "react-chartjs-2";
 import { Chart as ChartJS, ArcElement, Tooltip, Legend } from 'chart.js'; 
 import './RevenueCheck.css'
 
+
 ChartJS.register(ArcElement, Tooltip, Legend);
 
 const RevenueCheck = () => {
@@ -13,7 +14,7 @@ const RevenueCheck = () => {
     useEffect(() => {
         const checkRevenue = async () => {
             try {
-                const response = await fetch('http://localhost:5000/admin/checkrevenue', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/checkrevenue`, {
                     method: 'GET',
                     credentials: 'include'
                 });

@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../partials/Header';
 import { useSelector } from 'react-redux';
-import './UserDashboard.css';
 
 const UserDashboard = () => {
     const [user, setUser] = useState(null);
@@ -29,7 +28,7 @@ const UserDashboard = () => {
                     navigate('/login');
                 }
 
-                const bookingsResponse = await fetch('http://localhost:5000/user/userbookings', {
+                const bookingsResponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/userbookings`, {
                     credentials: 'include',
                 });
 
@@ -56,7 +55,7 @@ const UserDashboard = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/user/updatecontact', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/updatecontact`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {
@@ -88,7 +87,7 @@ const UserDashboard = () => {
         }
 
         try {
-            const response = await fetch('http://localhost:5000/user/submitfeedback', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/submitfeedback`, {
                 method: 'POST',
                 credentials: 'include',
                 headers: {

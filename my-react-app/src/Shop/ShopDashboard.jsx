@@ -23,7 +23,7 @@ const ShopDashboard = () => {
   useEffect(() => {
     const getSports = async () => { 
       try { 
-        const res = await fetch("http://localhost:5000/admin/getsportslist", { 
+        const res = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getsportslist`, { 
           method: "GET",
           headers: {
             "Content-Type": "application/json",
@@ -39,7 +39,7 @@ const ShopDashboard = () => {
     const checkShopSession = async () => {
       try {
         setLoading(true);
-        const response = await fetch('http://localhost:5000/shop/checkshopsession', {
+        const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/checkshopsession`, {
           credentials: 'include'
         });
   
@@ -53,7 +53,7 @@ const ShopDashboard = () => {
           setGrounds(data.shop.availablesports || []);
         }
   
-        const revenueresponse = await fetch('http://localhost:5000/shop/checkrevenue', {
+        const revenueresponse = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/checkrevenue`, {
           method: 'GET',
           credentials: 'include'
         });
@@ -67,7 +67,7 @@ const ShopDashboard = () => {
         }
   
         if (city !== null) {
-          const getcitieslist = await fetch('http://localhost:5000/shop/getcitieslist', {
+          const getcitieslist = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/getcitieslist`, {
             method: 'GET',
             credentials: 'include'
           });
@@ -106,7 +106,7 @@ const updatesubmit = async (e) => {
   try {
     const cityData = JSON.parse(cityobject.value);
 
-    const response = await fetch('http://localhost:5000/shop/updateshop', {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/updateshop`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -201,7 +201,7 @@ const updatesubmit = async (e) => {
     };
   
     try {
-      const response = await fetch('http://localhost:5000/shop/addground', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/addground`, {
         method: 'POST',
         body: formData,
         credentials: 'include'
@@ -261,7 +261,7 @@ const updatesubmit = async (e) => {
 
   const applyingforverification = async (groundname) => {
     try {
-      const response = await fetch('http://localhost:5000/shop/applyforverification', {
+      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/applyforverification`, {
         method: 'POST',
         body: JSON.stringify({ groundname }),
         headers: {
@@ -300,7 +300,7 @@ const updatesubmit = async (e) => {
   };
 
   const shoplogout = async () => {
-    await fetch('http://localhost:5000/shop/logout', { credentials: 'include', method: 'POST' });
+    await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/logout`, { credentials: 'include', method: 'POST' });
     navigate('/');
   };
 

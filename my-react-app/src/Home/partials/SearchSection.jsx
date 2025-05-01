@@ -16,7 +16,7 @@ const SearchSection = () => {
     useEffect(() => {
         const fetchSports = async () => {
             try {
-                const response = await fetch('http://localhost:5000/shop/getsportslist', {
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/getsportslist`, {
                     credentials: 'include',
                 });
                 if (response.ok) {
@@ -50,7 +50,7 @@ const SearchSection = () => {
     // Fetch suggestions from the backend
     const fetchSuggestions = async (searchText) => {
         try {
-            const response = await fetch(`http://localhost:5000/shop/venues?search=${searchText}`);
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/venues?search=${searchText}`);
             const data = await response.json();
             setSuggestions(data.searchShop || []); // Safely set suggestions from backend response
         } catch (error) {

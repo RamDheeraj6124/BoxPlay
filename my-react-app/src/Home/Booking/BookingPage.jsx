@@ -28,7 +28,7 @@ const BookingPage = () => {
     if (effectRan.current === false) {
       const fetchVenueData = async () => {
         try {
-          const response = await fetch('http://localhost:5000/shop/loadground', {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/loadground`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ name }),
@@ -73,7 +73,7 @@ const BookingPage = () => {
 
   const openBookingModal =async () => {
     try{
-     const response=await fetch('http://localhost:5000/user/checksession',{credentials: 'include'}) ;
+     const response=await fetch(`${process.env.REACT_APP_BACKEND_URL}/user/checksession`,{credentials: 'include'}) ;
      if(response.ok){
       setsessionstate(true);
      }
@@ -92,7 +92,7 @@ const BookingPage = () => {
 
   const getpercentage=async ()=>{
     try{
-      const response=await fetch('http://localhost:5000/admin/getpercentage',{credentials: 'include'});
+      const response=await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getpercentage`,{credentials: 'include'});
       if(response.ok){
         const data=await response.json();
         return data.percentage;
@@ -196,7 +196,7 @@ const BookingPage = () => {
   
         const groundname = venueData.groundname;
         try {
-          const response = await fetch('http://localhost:5000/shop/checkgroundifthatdate', {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/checkgroundifthatdate`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ selectedDate, shopname, groundname }),
@@ -236,7 +236,7 @@ const BookingPage = () => {
       console.log(bookingDetails);
   
       try {
-          const response = await fetch('http://localhost:5000/shop/bookground', {
+          const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/shop/bookground`, {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify(bookingDetails),

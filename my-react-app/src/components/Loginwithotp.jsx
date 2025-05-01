@@ -22,7 +22,7 @@ const Loginwithotp = () => {
     
         try {
             // Send the email and OTP to the backend server for verification
-            const response = await fetch('http://localhost:5000/user//loginOTP', {
+            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/user//loginOTP`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

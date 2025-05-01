@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import './BookingList.css';
 
+
 const BookingsList = () => {
     const [bookings, setBookings] = useState({
         futureBookings: [],
@@ -13,7 +14,7 @@ const BookingsList = () => {
     useEffect(() => {
         const fetchBookings = async () => {
             try {
-                const response = await fetch('http://localhost:5000/admin/getallbookings'); // Adjust the URL based on your API endpoint
+                const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/admin/getallbookings`); // Adjust the URL based on your API endpoint
                 if (!response.ok) {
                     throw new Error('Failed to fetch bookings');
                 }
