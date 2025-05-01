@@ -1,19 +1,26 @@
-FROM node:20
+# Build stage
+FROM node:20 as build
 
 WORKDIR /app
 
-# Copy everything first
 COPY . .
 
-# Install dependencies
 RUN npm ci
-
-# Optional debug: ensure react-scripts is present
-RUN ls -l node_modules/.bin && node_modules/.bin/react-scripts --version
-
-# Build the React app
 RUN npm run build
 
+# Production stage
+FROM node:20 as production
+
+WORKDIR /app
+
+# Install serve to serve the build folder
+RUN npm install -g serve
+
+# Copy build folder from previous stage
+COPY --from=build /app/build ./build
+
+# Expose the port serve will use
 EXPOSE 3000
 
-CMD ["npm", "start"]
+# Start the app
+CMD ["serve", "-s", "build", "-l", "3000"]
