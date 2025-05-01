@@ -74,18 +74,18 @@ app.use(cors({
   credentials: true
 }));
 
-
 app.use(session({
-  key: "userid",
-  secret: "project",
+  name: 'sessionId', // Cookie name (optional)
+  secret: process.env.SESSION_SECRET, // Must be set in Render env vars
   resave: false,
   saveUninitialized: false,
   cookie: {
-    expires: 60 * 60 * 24 * 1000,
-    secure: false,
-    httpOnly: true,
-    sameSite: 'Lax'
-  }
+    secure: true, // Required for HTTPS (Render forces HTTPS)
+    sameSite: 'none', // Required for cross-site cookies
+    httpOnly: true, // Prevents client-side JS access
+    maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
+    domain: '.onrender.com', // Allows cookies across *.onrender.com subdomains
+  },
 }));
 
 app.use('/user', userroutes);
