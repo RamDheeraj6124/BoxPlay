@@ -71,7 +71,7 @@ const BookingPage = () => {
     const amount = Number(((pricePerHour * playDuration) + (pricePerHour * playDuration * platformpercentage / 100)).toFixed(2));
   
     try {
-      const res = await fetch('http://localhost:5000/api/payment/create-order', {
+      const res = await fetch(`${REACT_APP_BACKEND_URL}/api/payment/create-order`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount }),
