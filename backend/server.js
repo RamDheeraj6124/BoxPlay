@@ -48,17 +48,17 @@ app.use(cors({
   credentials: true
 }));
 
-// ✅ Secure session setup for cross-site cookies
 app.use(session({
   secret: process.env.SESSION_SECRET || 'project',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // secure=true only in HTTPS
+    secure: true, // Always use secure in cross-domain scenarios
     httpOnly: true,
-    domain: '.onrender.com',
-    sameSite: 'none', // allows cross-origin
+    // Make sure this domain matches your setup
+    domain: process.env.NODE_ENV === 'production' ? '.onrender.com' : 'localhost',
+    sameSite: 'none', // Correct for cross-origin
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
