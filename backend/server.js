@@ -10,6 +10,8 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser'); 
 const helmet = require('helmet'); 
 require('dotenv').config(); 
+const swaggerJsdoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
@@ -18,10 +20,8 @@ var rfs = require('rotating-file-stream');
 
 const app = express();
 
-// Set trust proxy - important for sessions behind proxies like on Render.com
 app.set('trust proxy', 1);
 
-// Connect to database
 dbconnect();
 
 // Middleware setup
@@ -39,6 +39,34 @@ app.use(
     },
   })
 );
+const swaggerOptions = {
+  definition: {
+    openapi: '3.0.0',
+    info: {
+      title: 'Your API Documentation',
+      version: '1.0.0',
+      description: 'API docs for your Node.js application',
+    },
+    servers: [
+      { url: ['https://boxplay-2.onrender.com','http://localhost:3000'] },
+    ],
+    components: {
+      securitySchemes: {
+        bearerAuth: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+        },
+      },
+    },
+    security: [{ bearerAuth: [] }],
+  },
+  apis: ['./routes/*.js'],
+};
+
+const swaggerSpec = swaggerJsdoc(swaggerOptions);
+
+
 
 // Logging setup
 app.use(morgan('tiny'));
@@ -50,15 +78,12 @@ var accessLogStream = rfs.createStream('access.log', {
   interval: '1d', // rotate daily
 });
 
-// Setup the logger
 app.use(morgan('combined', { stream: accessLogStream }));
 morgan.token("timed", "A new :method request :url :status ");
 
-// CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://boxplay-frontend.onrender.com',
-  // Add any other origins you need
+  'https://boxplay-2.onrender.com',
 ];
 
 app.use(cors({
@@ -92,16 +117,9 @@ app.use('/user', userroutes);
 app.use('/shop', shoproutes);
 app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Debug endpoint for session troubleshooting
-app.get('/debug/session', (req, res) => {
-  res.json({
-    sessionID: req.sessionID,
-    session: req.session,
-    cookies: req.cookies,
-    hasUser: !!req.session.user
-  });
-});
+
 
 // Error handling
 app.use(errorHandler);
