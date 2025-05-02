@@ -70,11 +70,9 @@ morgan.token("timed", "A new :method request :url :status ");
 
 app.use(cors({
   origin: 'https://boxplay-2.onrender.com',
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-  exposedHeaders: ['set-cookie'], // Add this line
-  credentials: true
+  credentials: true,
 }));
+
 
 app.use(session({
   name: 'sessionId', // Cookie name (optional)
@@ -82,10 +80,10 @@ app.use(session({
   resave: false,
   saveUninitialized: false,
   cookie: {
-    secure: true, // Required for HTTPS (Render forces HTTPS)
-    sameSite: 'none', // Required for cross-site cookies
-    httpOnly: true, // Prevents client-side JS access
-    maxAge: 24 * 60 * 60 * 1000, // 1 day expiry
+    secure: true,
+    sameSite: 'none',
+    httpOnly: true,
+    maxAge: 24 * 60 * 60 * 1000
   },
   store: MongoStore.create({
     mongoUrl: process.env.MONGO_URI,
