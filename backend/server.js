@@ -67,10 +67,12 @@ var accessLogStream = rfs.createStream('access.log', {
 app.use(morgan('combined', { stream: accessLogStream }));
 morgan.token("timed", "A new :method request :url :status ");
 
+
 app.use(cors({
   origin: 'https://boxplay-2.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   allowedHeaders: ['Content-Type', 'Authorization'],
+  exposedHeaders: ['set-cookie'], // Add this line
   credentials: true
 }));
 
@@ -92,6 +94,7 @@ app.use(session({
     autoRemoveInterval: 60, // Cleanup expired sessions every 60 mins
     touchAfter: 3600, // Only sync to DB if session inactive for 1 hour (reduces writes)
   }),
+  domain: '.onrender.com'
 }));
 
 app.use('/user', userroutes);
