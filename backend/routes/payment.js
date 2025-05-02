@@ -5,7 +5,7 @@ const cors = require('cors');  // Add this to handle CORS
 require('dotenv').config();
 
 // Allow CORS for frontend URL (Adjust this if your frontend is hosted somewhere else)
-router.use(cors({ origin: 'http://localhost:3000' }));
+router.use(cors({ origin: 'https://boxplay-2.onrender.com' }));
 
 const razorpay = new Razorpay({
   key_id: process.env.RAZORPAY_KEY_ID,
