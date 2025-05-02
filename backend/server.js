@@ -17,6 +17,8 @@ const MongoStore = require('connect-mongo');
 var rfs = require('rotating-file-stream')
 const app = express();
 dbconnect();
+app.set('trust proxy', 1);
+
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
