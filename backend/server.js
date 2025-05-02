@@ -55,6 +55,7 @@ app.use(session({
   cookie: {
     secure: process.env.NODE_ENV === 'production', // secure=true only in HTTPS
     httpOnly: true,
+    domain: '.onrender.com',
     sameSite: 'none', // allows cross-origin
     maxAge: 24 * 60 * 60 * 1000
   }
