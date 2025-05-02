@@ -40,7 +40,7 @@ var accessLogStream = rfs.createStream('access.log', {
   // setup the logger
 app.use(morgan('combined' , { stream: accessLogStream }))
 morgan.token("timed","A new :method request :url :status ")
-aapp.use(cors({ 
+app.use(cors({ 
   origin: 'https://boxplay-frontend.onrender.com',
   methods: ['GET', 'POST', 'PUT', 'DELETE'],
   credentials: true
