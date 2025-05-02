@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '../partials/Header';
 import { useSelector } from 'react-redux';
+import './UserDashboard.css'; 
 
 const UserDashboard = () => {
     const [user, setUser] = useState(null);
