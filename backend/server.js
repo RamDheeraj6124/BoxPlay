@@ -47,16 +47,16 @@ app.use(cors({
 }));
 
 app.use(session({
-    key: "userid",
-    secret: "project",
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-        expires: 60 * 60 * 24 * 1000, // 1 day
-        secure: false,  // Allow HTTP for development (set to true for production with HTTPS)
-        httpOnly: true, // Prevent client-side JavaScript from accessing the cookie
-        sameSite: 'Lax' // Helps mitigate CSRF attacks
-    }
+  secret: process.env.SESSION_SECRET || 'project',
+  resave: false,
+  saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  cookie: {
+    secure: true,     // ← HTTPS only
+    httpOnly: true,
+    sameSite: 'none', // ← allow cross‑site
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 app.use('/user', userroutes);
 app.use('/shop', shoproutes);
