@@ -4,14 +4,11 @@ import './AdminDashboard.css';
 
 const VerifyShopMode = () => {
     const [username, setUsername] = useState(null);
-
     const [verifyShops, setVerifyShops] = useState([]);
     const [selectedShop, setSelectedShop] = useState(null);
     const [isVerifyShopModalOpen, setIsVerifyShopModalOpen] = useState(false);
-    const [sportTypes, setSportTypes] = useState({});
-
+    const [gid,setgid]=useState([]);
     const navigate = useNavigate();
-
     useEffect(() => {
         const checkSession = async () => {
             try {
@@ -29,10 +26,6 @@ const VerifyShopMode = () => {
                     );
                     setVerifyShops(filteredVerifyShops);
                     
-                    // Fetch sport types if shops are available
-                    if (data.details.shops.length > 0) {
-                        fetchSportTypes();
-                    }
                 } else {
                     navigate('/login');
                     setUsername(null);
@@ -44,53 +37,26 @@ const VerifyShopMode = () => {
         };
 
         checkSession();
-    }, [navigate]);
-
-    const fetchSportTypes = async () => {
-        try {
-            const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/api/sports`, {
-                credentials: 'include'
-            });
-            
-            if (response.ok) {
-                const sports = await response.json();
-                const sportsMap = {};
-                
-                sports.forEach(sport => {
-                    sportsMap[sport._id] = sport;
-                });
-                
-                setSportTypes(sportsMap);
-            }
-        } catch (error) {
-            console.error("Error fetching sports:", error);
-        }
-    };
-
+    }, [navigate]); 
     const openVerifyShopModal = (shop) => {
         setSelectedShop(shop);
         setIsVerifyShopModalOpen(true);
-        // Prevent body scrolling when modal is open
         document.body.style.overflow = 'hidden';
     };
-
     const closeVerifyShopModal = () => {
         setIsVerifyShopModalOpen(false);
         setSelectedShop(null);
         // Restore body scrolling when modal is closed
         document.body.style.overflow = 'auto';
     };
+    const handleCheckbox = (e) => {
+        const { id } = e.target;
+        setgid((prevGid) => {
+                return [...prevGid, id];
 
-    const handleShopChange = (e, index) => {
-        const updatedSports = selectedShop.availablesports.map((sport, i) => {
-            if (i === index) {
-                return { ...sport, verify: e.target.checked };
-            }
-            return sport;
         });
-        setSelectedShop({ ...selectedShop, availablesports: updatedSports });
+        console.log(gid);
     };
-
     const adminVerify = async (e) => {
         e.preventDefault();
 
@@ -102,7 +68,7 @@ const VerifyShopMode = () => {
                 },
                 body: JSON.stringify({
                     shopId: selectedShop._id,
-                    availablesports: selectedShop.availablesports
+                    gid:gid
                 }),
                 credentials: 'include'
             });
@@ -119,19 +85,6 @@ const VerifyShopMode = () => {
             console.error("Error:", error);
         }
     };
-
-    const getSurfaceTypeLabel = (type) => {
-        const labels = {
-            'Grass': 'Natural Grass',
-            'Turf': 'Artificial Turf',
-            'Clay': 'Clay Court',
-            'Hard': 'Hard Court',
-            'Synthetic': 'Synthetic Surface'
-        };
-        
-        return labels[type] || type;
-    };
-    
 
     if (!username) {
         return <div className="login-message">You must be logged in as an admin to view this page.</div>;
@@ -196,7 +149,6 @@ const VerifyShopMode = () => {
                                 {selectedShop.availablesports
                                     .filter(sport => sport.appliedforverification && !sport.verify)
                                     .map((sport, index) => {
-                                        const sportInfo = sportTypes[sport.sport] || {};
                                         return (
                                             <div key={index} className="sport-verification-section">
                                                 <p className="ground-name">
@@ -223,7 +175,7 @@ const VerifyShopMode = () => {
                                                     
                                                     <div className="detail-row">
                                                         <div className="detail-label">Sport Type:</div>
-                                                        <div className="detail-value">{sportInfo.name || 'Unknown'}</div>
+                                                        <div className="detail-value">{sport.sport.name}</div>
                                                     </div>
                                                     
                                                     <div className="detail-row">
@@ -247,7 +199,7 @@ const VerifyShopMode = () => {
                                                     
                                                     <div className="detail-row">
                                                         <div className="detail-label">Surface Type:</div>
-                                                        <div className="detail-value">{getSurfaceTypeLabel(sport.surfacetype)}</div>
+                                                        <div className="detail-value">{sport.surfacetype}</div>
                                                     </div>
                                                     
                                                     {sport.facilities && sport.facilities.length > 0 && (
@@ -275,9 +227,8 @@ const VerifyShopMode = () => {
                                                 <div className="verify-checkbox">
                                                     <input
                                                         type="checkbox"
-                                                        id={`verify-${index}`}
-                                                        checked={sport.verify}
-                                                        onChange={(e) => handleShopChange(e, index)}
+                                                        id={sport._id}
+                                                        onChange={handleCheckbox}
                                                     />
                                                     <label htmlFor={`verify-${index}`}>Verify this ground</label>
                                                 </div>

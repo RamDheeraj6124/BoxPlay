@@ -66,6 +66,52 @@ const BookingPage = () => {
     };
   }, [name]);
 
+
+  const handlePayment = async () => {
+    const amount = Number(((pricePerHour * playDuration) + (pricePerHour * playDuration * platformpercentage / 100)).toFixed(2));
+  
+    try {
+      const res = await fetch('http://localhost:5000/api/payment/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount }),
+      });
+  
+      const data = await res.json();
+      const order = data.order;
+  
+      const options = {
+        key: process.env.REACT_APP_RAZORPAY_KEY_ID, // ✅ Use env variable
+        amount: order.amount,
+        currency: order.currency,
+        name: 'BoxPlay',
+        description: 'Ground Booking Payment',
+        order_id: order.id,
+        handler: async function (response) {
+          // You can validate payment here via backend before proceeding
+          await bookinghandle(); // Proceed to booking if payment is successful
+        },
+        prefill: {
+          name: 'User Name',
+          email: 'user@example.com',
+          contact: '9999999999',
+        },
+        theme: {
+          color: '#0f6efd',
+        },
+      };
+  
+      const rzp = new window.Razorpay(options);
+      rzp.open();
+    } catch (error) {
+      console.error('Payment initiation failed:', error);
+      alert('Failed to initiate payment');
+    }
+  };
+  
+
+  
+
   const extractAvailableDays = (availability) => {
     const days = availability.map(timing => timing.day);
     setAvailableDays(days);
@@ -372,7 +418,7 @@ const BookingPage = () => {
             <h3>Platform Fee: ₹{(pricePerHour * playDuration * 5/ 100).toFixed(2)}</h3>
             <h3>Total Fee: ₹{(pricePerHour * playDuration + (pricePerHour * playDuration * platformpercentage / 100)).toFixed(2)}</h3>
 
-            {sessionstate && <button onClick={bookinghandle} className="bp-book-now-button">Book Now</button>}
+            {sessionstate && <button onClick={handlePayment} className="bp-book-now-button">Pay & Book Now</button>}
             {!sessionstate && <a href='/login'>Please log in to book a ground.</a>}
           </div>
         </div>

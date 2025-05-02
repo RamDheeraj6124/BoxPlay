@@ -64,7 +64,8 @@ exports.checksession = async (req, res, next) => {
 
 // Admin verify route
 exports.adminverify = async (req, res, next) => {
-    const { shopId, availablesports } = req.body;
+    const { shopId, gid } = req.body; // gid is the list of sport _id's to verify
+
     try {
         const shop = await Shop.findById(shopId);
 
@@ -72,11 +73,18 @@ exports.adminverify = async (req, res, next) => {
             return res.status(404).json({ message: 'Shop not found' });
         }
 
-        shop.availablesports = availablesports;
-        const updatedShop = await shop.save();
+        // Update verification flags only for selected grounds
+        shop.availablesports.forEach(sport => {
+            if (gid.includes(String(sport._id))) {
+                sport.verify = true;
+                sport.appliedforverification = false;
+            }
+        });
 
+        const updatedShop = await shop.save();
         return res.json(updatedShop);
     } catch (error) {
+        console.error("Error in adminverify:", error);
         next(error);
     }
 };
