@@ -40,22 +40,22 @@ var accessLogStream = rfs.createStream('access.log', {
   // setup the logger
 app.use(morgan('combined' , { stream: accessLogStream }))
 morgan.token("timed","A new :method request :url :status ")
-app.use(cors({
-    origin: 'https://boxplay-frontend.onrender.com/',
-    methods: 'GET, POST, PUT, DELETE',
-    allowedHeaders: 'Content-Type, Authorization',
-    credentials: true
+aapp.use(cors({ 
+  origin: 'https://boxplay-frontend.onrender.com',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
 }));
 
+// ✅ Secure session setup for cross-site cookies
 app.use(session({
   secret: process.env.SESSION_SECRET || 'project',
   resave: false,
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
-    secure: true,     // ← HTTPS only
+    secure: process.env.NODE_ENV === 'production', // secure=true only in HTTPS
     httpOnly: true,
-    sameSite: 'none', // ← allow cross‑site
+    sameSite: 'none', // allows cross-origin
     maxAge: 24 * 60 * 60 * 1000
   }
 }));
