@@ -205,6 +205,7 @@ exports.login = async (req, res) => {
         if (!isMatch) return res.status(400).json({ msg: 'Invalid credentials' });
 
         req.session.user = userfound; // Storing user in the session
+        console.log('Session ID:', req.sessionID);
         console.log('Session created:', req.session.user);
 
         res.status(200).json({ msg: 'Login Successful',role:userfound.role });
@@ -216,8 +217,9 @@ exports.login = async (req, res) => {
 
 // Check Session Controller
 exports.checksession = (req, res) => {
+
     if (req.session.user) {
-        const user=req.session.user;
+        const user=req.session.user;    
         res.status(200).json({user});
     } else {
         res.status(400).json({ msg: "Session does not exist" });
