@@ -367,6 +367,6 @@ router.post('/addcity', Admincontroller.addcity);
  *       200:
  *         description: Successfully logged out
  */
-router.post('/logout', adminController.logout);
+router.post('/logout', Admincontroller.logout);
 
 module.exports = router;
