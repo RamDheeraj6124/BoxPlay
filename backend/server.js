@@ -15,8 +15,10 @@ const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
 const rfs = require('rotating-file-stream');
-const RedisStore = require('connect-redis').default;
 const Redis = require('ioredis');
+const RedisStore = require('connect-redis');  // Directly import the module, no need for .default
+const redisClient = require('./config/redisClient');
+
 require('dotenv').config();
 
 const app = express();
@@ -107,20 +109,18 @@ app.use(
 );
 
 // Redis session store
-app.use(
-  session({
-    store: new RedisStore({ client: redisClient }),
-    secret: process.env.SESSION_SECRET || 'project',
-    resave: false,
-    saveUninitialized: false,
-    cookie: {
-      secure: true,
-      httpOnly: true,
-      sameSite: 'none',
-      maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    },
-  })
-);
+app.use(session({
+  store: new RedisStore({ client: redisClient }), // Updated to use the factory function
+  secret: process.env.SESSION_SECRET || 'project',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+  }
+}));
 
 // Routes
 app.use('/user', userroutes);
