@@ -1,6 +1,6 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../server');
+const app = require('../server1');
 const City = require('../models/City');
 const State = require('../models/State');
 const Shop = require('../models/Shop');
