@@ -16,13 +16,24 @@ const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
 const MongoStore = require('connect-mongo');
-var rfs = require('rotating-file-stream');
+const rfs = require('rotating-file-stream');
+const redis = require('./config/redisClient'); // ✅ Redis import
 
 const app = express();
 
 app.set('trust proxy', 1);
 
 dbconnect();
+
+// Redis Test (optional)
+redis.set('foo', 'bar');
+redis.get('foo', (err, result) => {
+  if (err) {
+    console.error('Redis GET error:', err);
+  } else {
+    console.log('Redis value for "foo":', result);
+  }
+});
 
 // Middleware setup
 app.use(bodyParser.json());
@@ -39,6 +50,7 @@ app.use(
     },
   })
 );
+
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -48,7 +60,7 @@ const swaggerOptions = {
       description: 'API docs for your Node.js application',
     },
     servers: [
-      { url: ['https://boxplay-2.onrender.com','http://localhost:3000'] },
+      { url: ['https://boxplay-2.onrender.com', 'http://localhost:3000'] },
     ],
     components: {
       securitySchemes: {
@@ -65,8 +77,6 @@ const swaggerOptions = {
 };
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
-
-
 
 // Logging setup
 app.use(morgan('tiny'));
@@ -105,10 +115,10 @@ app.use(session({
   saveUninitialized: false,
   store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
-    secure: true, // Always secure for cross-origin with sameSite: none
+    secure: true,
     httpOnly: true,
-    sameSite: 'none', // Required for cross-site cookies
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000
   }
 }));
 
@@ -119,12 +129,9 @@ app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
-
 // Error handling
 app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
-module.exports = app;
