@@ -43,8 +43,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Debug Test Files
-        run: ls -R backend/__tests__
+      - name: Debug List all files
+        run: ls -R
 
       - name: Start MongoDB Memory Server
         run: |
@@ -52,12 +52,8 @@ jobs:
           nohup mongod --dbpath /tmp/mongodb --port 27017 > /dev/null 2>&1 &
           sleep 5
 
-      - name: Debug MongoDB Startup
-        run: ps aux | grep mongod
-
-      - name: Run Jest tests
-        run: npm test -- --detectOpenHandles --forceExit --coverage
-        working-directory: backend
+      - name: Run Jest tests (Verbose)
+        run: npm test -- --detectOpenHandles --forceExit --coverage --verbose
         env:
           JEST_JUNIT_OUTPUT: test-results/jest/results.xml
 
