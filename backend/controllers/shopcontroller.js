@@ -334,13 +334,12 @@ exports.loadVenues = async (req, res) => {
 
     // Step 1: Check Redis Cache
     const cachedData = await redis.get(cacheKey);
-
     if (cachedData) {
-      console.log('Serving from Redis Cache');
+      console.log('✅ Serving venues from Redis cache');
       return res.status(200).json(JSON.parse(cachedData));
     }
 
-    // Step 2: If not cached, fetch from DB
+    // Step 2: Fetch from MongoDB
     const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
       .populate("availablesports.sport")
       .exec();
@@ -381,13 +380,13 @@ exports.loadVenues = async (req, res) => {
       return res.status(404).json({ message: "No verified venues found" });
     }
 
-    // Step 3: Cache in Redis
-    await redis.set(cacheKey, JSON.stringify(venueData), 'EX', 3600); // Cache for 1 hour
+    // Step 3: Cache the data in Redis (TTL 1 hour)
+    await redis.set(cacheKey, JSON.stringify(venueData), 'EX', 3600);
+    console.log('📦 Data cached in Redis for 1 hour');
 
-    console.log('Serving from MongoDB and caching to Redis');
     res.status(200).json(venueData);
   } catch (error) {
-    console.error("Error fetching venues:", error);
+    console.error("❌ Error fetching venues:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
