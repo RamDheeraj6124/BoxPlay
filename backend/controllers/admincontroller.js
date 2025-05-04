@@ -17,8 +17,8 @@ const displaydetails = async (req, res) => {
         const cachedData = await redis.get(cacheKey);
 
         if (cachedData) {
-            console.log('Serving venues from Redis cache');
-            return cachedData;
+            console.log('Serving details from Redis cache');
+            return JSON.parse(cachedData);
         }
 
         const users = await User.find().lean();
