@@ -28,9 +28,6 @@ app.set('trust proxy', 1);
 dbconnect();
 
 // Connect to Redis
-const redisClient = new Redis(process.env.REDIS_URL, {
-  tls: process.env.REDIS_URL.includes('red-') ? {} : undefined,
-});
 redisClient.on('connect', () => {
   console.log('✅ Connected to Redis');
 });
@@ -119,7 +116,7 @@ app.use(session({
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-  }
+  }
 }));
 
 // Routes
