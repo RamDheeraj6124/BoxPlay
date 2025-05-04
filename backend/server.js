@@ -17,12 +17,16 @@ const morgan = require('morgan');
 const path = require('path');
 const MongoStore = require('connect-mongo');
 var rfs = require('rotating-file-stream');
+const RedisStore = require('connect-redis').default;
+const redisClient = require('./config/redisClient');
+ 
 
 const app = express();
 
 app.set('trust proxy', 1);
 
 dbconnect();
+
 
 // Middleware setup
 app.use(bodyParser.json());
@@ -99,6 +103,7 @@ app.use(cors({
 }));
 
 // Session configuration
+/*
 app.use(session({
   secret: process.env.SESSION_SECRET || 'project',
   resave: false,
@@ -110,6 +115,18 @@ app.use(session({
     sameSite: 'none', // Required for cross-site cookies
     maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
+}));*/
+app.use(session({
+  store: new RedisStore({ client: redisClient }),
+  secret: process.env.SESSION_SECRET || 'project',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    secure: true,
+    httpOnly: true,
+    sameSite: 'none',
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
 // Routes

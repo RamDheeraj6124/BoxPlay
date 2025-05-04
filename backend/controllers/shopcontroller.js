@@ -1,15 +1,12 @@
-const Shop = require('../models/Shop'); // Import the Shop model
-const bcrypt = require('bcryptjs'); // For hashing passwords
-const fs = require('fs');
-const path = require('path');
+const Shop = require('../models/Shop'); 
+const bcrypt = require('bcryptjs'); 
 const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
 const City = require('../models/City');
 const dns = require('dns');
+const redisClient = require('../config/redisClient'); // import your Redis client
+const CACHE_KEY = 'venueData';
 
-
-const CACHE_KEY = "venues"; 
-const CACHE_EXPIRATION = 3600; // 1 hour
 
 const validateEmailDomain = async (email) => {
     try {
@@ -280,7 +277,7 @@ exports.applyforverification = async (req, res) => {
     }
   };
   
-
+/*
     
 exports.loadVenues = async (req, res) => {
     try {
@@ -330,7 +327,68 @@ exports.loadVenues = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
+  */
+  exports.loadVenues = async (req, res) => {
+    try {
+      // 1. Check Redis cache
+      const cachedData = await redisClient.get(CACHE_KEY);
+      if (cachedData) {
+        console.log('⚡ Serving from Redis cache');
+        return res.status(200).json(JSON.parse(cachedData));
+      }
   
+      // 2. Cache miss — Fetch from MongoDB
+      const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
+        .populate("availablesports.sport")
+        .exec();
+  
+      const venueData = shopsWithVenues
+        .map((shop) => {
+          const verifiedSports = shop.availablesports.filter((sport) => sport.verify);
+          return verifiedSports.map((sport) => {
+            let imageBase64 = "";
+            try {
+              if (sport.image && sport.image.data) {
+                const mimeType = sport.image.contentType || 'image/jpeg';
+                imageBase64 = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
+              }
+            } catch (imageError) {
+              console.error(`Error reading image for ${sport.groundname}:`, imageError);
+            }
+  
+            return {
+              name: shop.shopname,
+              address: shop.address,
+              image: imageBase64,
+              groundname: sport.groundname,
+              priceperhour: sport.priceperhour,
+              maxplayers: sport.maxplayers,
+              surfacetype: sport.surfacetype,
+              status: sport.status,
+              sportname: sport.sport?.name,
+              grounddimensions: sport.grounddimensions,
+              availability: sport.availability,
+              facilities: sport.facilities,
+            };
+          });
+        })
+        .flat();
+  
+      if (venueData.length === 0) {
+        return res.status(404).json({ message: "No verified venues found" });
+      }
+  
+      // 3. Cache the data in Redis (10 minutes)
+      await redisClient.set(CACHE_KEY, JSON.stringify(venueData), 'EX', 600);
+  
+      console.log('✅ Fetched from DB and cached in Redis');
+      res.status(200).json(venueData);
+  
+    } catch (error) {
+      console.error("Error fetching venues:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+  };
 
 exports.getcitieslist=async(req,res)=>{
     try{
