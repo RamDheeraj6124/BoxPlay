@@ -1,4 +1,4 @@
-name: Node.js CI
+name: Node.js CI (Identical to Friend's Setup)
 
 on:
   push:
@@ -10,36 +10,24 @@ jobs:
   test:
     name: Backend Tests
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-    defaults:
-      run:
-        working-directory: ./backend
-
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
-        options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
-
-    env:
-      NODE_ENV: test
-      MONGO_URL: mongodb://localhost:27017/testdb
-      REDIS_URL: redis://localhost:6379
-      JWT_SECRET: testsecret
-      SESSION_SECRET: testsecret
+    strategy:
+      matrix:
+        node-version: [20.x]
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
+      # 1) Checkout code
+      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+      # 2) Setup Node.js (exact version like friend's)
+      - name: Use Node.js ${{ matrix.node-version }}
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: ${{ matrix.node-version }}
           cache: 'npm'
 
-      - name: Install dependencies
+      # 3) Install backend dependencies (identical approach)
+      - name: Install backend deps
+        working-directory: ./backend
         run: |
           if [ -f package-lock.json ]; then
             npm ci
@@ -47,24 +35,20 @@ jobs:
             npm install
           fi
 
+      # 4) Start MongoDB (minimal setup like friend's)
       - name: Start MongoDB
         run: |
-          sudo apt-get install -y mongodb-org
           sudo mkdir -p /data/db
           sudo chown -R $USER /data/db
           mongod --fork --logpath /var/log/mongod.log --port 27017
           sleep 5
 
+      # 5) Run tests (EXACTLY like friend's - no extra flags)
       - name: Run tests
-        run: npm test -- --ci --forceExit --detectOpenHandles --testPathPattern=__tests__
+        working-directory: ./backend
+        run: npm test
         env:
-          CI: true
-
-      - name: Upload test results
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: test-results
-          path: |
-            backend/test-results
-            backend/coverage
+          NODE_ENV: test
+          MONGO_URL: mongodb://localhost:27017/testdb
+          JWT_SECRET: "testsecret"
+          SESSION_SECRET: "testsecret"
