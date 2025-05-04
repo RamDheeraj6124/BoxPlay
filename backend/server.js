@@ -5,6 +5,7 @@ const errorHandler = require('./middlewares/errorHandler');
 const userroutes = require('./routes/userroutes');
 const shoproutes = require('./routes/shoproutes');
 const adminroutes = require('./routes/adminroutes');
+const paymentRoutes = require('./routes/payment');
 const session = require('express-session');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser'); 
@@ -12,26 +13,28 @@ const helmet = require('helmet');
 require('dotenv').config(); 
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
-const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
 const MongoStore = require('connect-mongo');
 const rfs = require('rotating-file-stream');
-const redis = require('./config/redisClient'); // ✅ Redis import
+
+// Import Redis client
+const redis = require('./redisClient');
 
 const app = express();
 
 app.set('trust proxy', 1);
 
+// MongoDB connection
 dbconnect();
 
-// Redis Test (optional)
+// ✅ Test Redis connection
 redis.set('foo', 'bar');
 redis.get('foo', (err, result) => {
   if (err) {
     console.error('Redis GET error:', err);
   } else {
-    console.log('Redis value for "foo":', result);
+    console.log('Redis value for "foo":', result); // should log "bar"
   }
 });
 
@@ -51,6 +54,7 @@ app.use(
   })
 );
 
+// Swagger setup
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -60,7 +64,8 @@ const swaggerOptions = {
       description: 'API docs for your Node.js application',
     },
     servers: [
-      { url: ['https://boxplay-2.onrender.com', 'http://localhost:3000'] },
+      { url: 'https://boxplay-2.onrender.com' },
+      { url: 'http://localhost:3000' },
     ],
     components: {
       securitySchemes: {
@@ -75,22 +80,20 @@ const swaggerOptions = {
   },
   apis: ['./routes/*.js'],
 };
-
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Logging setup
 app.use(morgan('tiny'));
 app.use(morgan('combined'));
 app.use(morgan(':method :url :status'));
-morgan.token("timed", "A new :method request :url :status ");
 
-var accessLogStream = rfs.createStream('access.log', {
-  interval: '1d', // rotate daily
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d',
+  path: path.join(__dirname, 'log'),
 });
-
 app.use(morgan('combined', { stream: accessLogStream }));
-morgan.token("timed", "A new :method request :url :status ");
 
+// CORS setup
 const allowedOrigins = [
   'http://localhost:3000',
   'https://boxplay-2.onrender.com',
@@ -129,7 +132,7 @@ app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Error handling
+// Error handler
 app.use(errorHandler);
 
 // Start server
