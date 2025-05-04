@@ -1,35 +1,45 @@
 const request = require('supertest');
 const mongoose = require('mongoose');
-const app = require('../server'); // Import your Express app
+const app = require('../server');
 const User = require('../models/User');
-const { MongoMemoryServer } = require('mongodb-memory-server');
+const bcrypt = require('bcryptjs');
+
+// Mock nodemailer globally
+jest.mock('nodemailer', () => ({
+  createTransport: jest.fn().mockReturnValue({
+    sendMail: jest.fn().mockImplementation((mailOptions, callback) => {
+      callback(null, { response: '250 OK' });
+    }),
+  }),
+}));
+
+// Mock Redis
+jest.mock('../config/redisClient', () => ({
+  set: jest.fn(),
+  get: jest.fn((key, callback) => callback(null, 'mocked-value')),
+  on: jest.fn(),
+  connect: jest.fn()
+}));
 
 describe('User Controller Tests', () => {
-  let mongoServer;
   let agent;
+  let testUser;
 
   beforeAll(async () => {
-    // Create in-memory MongoDB server
-    mongoServer = await MongoMemoryServer.create();
-    const mongoUri = mongoServer.getUri();
+    // Clear any existing connections
+    await mongoose.connection.dropDatabase();
     
-    // Connect to the test database
-    await mongoose.connect(mongoUri, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-    });
-
-    // Create a test agent that maintains cookies
+    // Create test agent
     agent = request.agent(app);
   });
 
   afterAll(async () => {
-    await mongoose.disconnect();
-    await mongoServer.stop();
+    // Clean up
+    await User.deleteMany({});
   });
 
   beforeEach(async () => {
-    // Clear database before each test
+    // Clear users before each test
     await User.deleteMany({});
   });
 
@@ -46,15 +56,14 @@ describe('User Controller Tests', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.msg).toBe('Signup Successful');
       
-      // Verify user was created in database
       const user = await User.findOne({ email: 'test@example.com' });
       expect(user).toBeTruthy();
       expect(user.username).toBe('testuser');
     });
 
     test('POST /user/login - should authenticate user', async () => {
-      // First create a test user
-      await User.create({
+      // Create test user first
+      testUser = await User.create({
         username: 'testuser',
         email: 'test@example.com',
         password: await bcrypt.hash('password123', 10)
@@ -69,11 +78,11 @@ describe('User Controller Tests', () => {
 
       expect(response.statusCode).toBe(200);
       expect(response.body.msg).toBe('Login Successful');
-      expect(response.headers['set-cookie']).toBeDefined(); // Check for session cookie
+      expect(response.headers['set-cookie']).toBeDefined();
     });
 
     test('POST /user/logout - should terminate session', async () => {
-      // First login to create a session
+      // First login to create session
       await agent
         .post('/user/login')
         .send({
@@ -90,8 +99,8 @@ describe('User Controller Tests', () => {
 
   describe('Session Tests', () => {
     test('GET /user/checksession - should check active session', async () => {
-      // First create and login a test user
-      const testUser = await User.create({
+      // Create and login test user
+      await User.create({
         username: 'testuser',
         email: 'test@example.com',
         password: await bcrypt.hash('password123', 10)
@@ -113,7 +122,7 @@ describe('User Controller Tests', () => {
 
   describe('OTP Tests', () => {
     test('POST /user/send-otp - should send OTP to email', async () => {
-      // Create a test user first
+      // Create test user first
       await User.create({
         username: 'testuser',
         email: 'test@example.com',
@@ -129,7 +138,6 @@ describe('User Controller Tests', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.message).toBe('OTP sent successfully');
       
-      // Verify OTP was saved in database
       const user = await User.findOne({ email: 'test@example.com' });
       expect(user.otp).toBeDefined();
       expect(user.otpExpiration).toBeDefined();
@@ -142,7 +150,7 @@ describe('User Controller Tests', () => {
         email: 'test@example.com',
         password: await bcrypt.hash('oldpassword', 10),
         otp: '1234',
-        otpExpiration: new Date(Date.now() + 10 * 60 * 1000) // 10 minutes from now
+        otpExpiration: new Date(Date.now() + 10 * 60 * 1000)
       });
 
       const response = await agent
@@ -156,7 +164,6 @@ describe('User Controller Tests', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.message).toBe('Password updated successfully');
       
-      // Verify password was changed and OTP cleared
       const updatedUser = await User.findById(testUser._id);
       const isMatch = await bcrypt.compare('newpassword123', updatedUser.password);
       expect(isMatch).toBe(true);
@@ -189,7 +196,6 @@ describe('User Controller Tests', () => {
       expect(response.statusCode).toBe(200);
       expect(response.body.contact).toBe('1234567890');
       
-      // Verify update in database
       const updatedUser = await User.findById(testUser._id);
       expect(updatedUser.contact).toBe('1234567890');
     });

@@ -18,7 +18,7 @@ const displaydetails = async (req, res) => {
 
         if (cachedData) {
             console.log('Serving venues from Redis cache');
-            return res.status(200).json(JSON.parse(cachedData));
+            return cachedData;
         }
 
         const users = await User.find().lean();
@@ -49,7 +49,7 @@ const displaydetails = async (req, res) => {
         const responseData = { users, shops, queries };
 
         await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);
-        return res.status(200).json(responseData);
+        return responseData;
 
     } catch (err) {
         console.error("❌ Error retrieving data:", err);
