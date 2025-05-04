@@ -7,33 +7,47 @@ const shoproutes = require('./routes/shoproutes');
 const adminroutes = require('./routes/adminroutes');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser'); 
-const helmet = require('helmet'); 
-require('dotenv').config(); 
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+require('dotenv').config();
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
 const MongoStore = require('connect-mongo');
-var rfs = require('rotating-file-stream');
-const RedisStore = require('connect-redis').default;
-const redisClient = require('./config/redisClient');
- 
+const rfs = require('rotating-file-stream');
+const connectRedis = require('connect-redis');
+const Redis = require('ioredis');
+
+// Setup Redis client
+const redisClient = new Redis(process.env.REDIS_URL, {
+  tls: process.env.REDIS_URL.includes('red-') ? {} : undefined,
+});
+
+redisClient.on('connect', () => {
+  console.log('✅ Connected to Redis');
+});
+
+redisClient.on('error', (err) => {
+  console.error('❌ Redis error:', err);
+});
+
+// Setup Redis Store for sessions
+const RedisStore = connectRedis(session);
 
 const app = express();
-
 app.set('trust proxy', 1);
 
+// Connect to MongoDB
 dbconnect();
-
 
 // Middleware setup
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Security middleware
+// Security headers
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -43,6 +57,8 @@ app.use(
     },
   })
 );
+
+// Swagger config
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -52,7 +68,8 @@ const swaggerOptions = {
       description: 'API docs for your Node.js application',
     },
     servers: [
-      { url: ['https://boxplay-2.onrender.com','http://localhost:3000'] },
+      { url: 'https://boxplay-2.onrender.com' },
+      { url: 'http://localhost:3000' }
     ],
     components: {
       securitySchemes: {
@@ -70,21 +87,16 @@ const swaggerOptions = {
 
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-
-
-// Logging setup
+// Logging
 app.use(morgan('tiny'));
 app.use(morgan('combined'));
 app.use(morgan(':method :url :status'));
-morgan.token("timed", "A new :method request :url :status ");
-
-var accessLogStream = rfs.createStream('access.log', {
-  interval: '1d', // rotate daily
+const accessLogStream = rfs.createStream('access.log', {
+  interval: '1d',
 });
-
 app.use(morgan('combined', { stream: accessLogStream }));
-morgan.token("timed", "A new :method request :url :status ");
 
+// CORS
 const allowedOrigins = [
   'http://localhost:3000',
   'https://boxplay-2.onrender.com',
@@ -102,20 +114,7 @@ app.use(cors({
   credentials: true
 }));
 
-// Session configuration
-/*
-app.use(session({
-  secret: process.env.SESSION_SECRET || 'project',
-  resave: false,
-  saveUninitialized: false,
-  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
-  cookie: {
-    secure: true, // Always secure for cross-origin with sameSite: none
-    httpOnly: true,
-    sameSite: 'none', // Required for cross-site cookies
-    maxAge: 24 * 60 * 60 * 1000 // 24 hours
-  }
-}));*/
+// Session configuration using Redis
 app.use(session({
   store: new RedisStore({ client: redisClient }),
   secret: process.env.SESSION_SECRET || 'project',
@@ -125,8 +124,8 @@ app.use(session({
     secure: true,
     httpOnly: true,
     sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000
-  }
+    maxAge: 24 * 60 * 60 * 1000
+  }
 }));
 
 // Routes
@@ -136,11 +135,12 @@ app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-
-
 // Error handling
 app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
+
+// Export redis client for use in other files
+module.exports = redisClient;
