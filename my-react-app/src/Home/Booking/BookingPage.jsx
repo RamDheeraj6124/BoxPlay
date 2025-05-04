@@ -24,6 +24,7 @@ const BookingPage = () => {
   const [platformpercentage,setplatformpercentage]=useState(0);
   const [groundfeedbacks,setGroundfeedbacks]=useState(null);
   const [shop,setShop]=useState([]);
+  const [getimage,setGetimage]=useState(null);
   useEffect(() => {
     if (effectRan.current === false) {
       const fetchVenueData = async () => {
@@ -42,8 +43,7 @@ const BookingPage = () => {
             setPricePerHour(data.ground.priceperhour);
             extractAvailableDays(data.ground.availability);
             setShop(data.shop);
-            console.log(shop)
-            console.log(data.groundfeedbacks)
+            setGetimage(data.getimage)
             const feedbacks=data.groundfeedbacks.filter(feedback => feedback.rating!=null)
             setGroundfeedbacks(feedbacks);
           } else {
@@ -365,7 +365,7 @@ const BookingPage = () => {
           dimensions={venueData.grounddimensions ? `Length: ${venueData.grounddimensions.length}m, Width: ${venueData.grounddimensions.width}m` : 'No dimensions available'}
           address={address ? `Address: ${address}` : 'Address not Available'}
 
-          image={venueData.image}
+          image={getimage ? getimage : 'No image available'}
           rating={ groundfeedbacks && groundfeedbacks.length > 0 
             ? (groundfeedbacks.reduce((sum, feedback) => sum + (feedback.rating || 0), 0) / groundfeedbacks.length).toFixed(2) 
             : 'No ratings yet'}

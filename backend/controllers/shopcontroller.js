@@ -104,21 +104,26 @@ exports.loginshop = async (req, res) => {
 
 
 exports.checkshopsession = (req, res) => {
-
     if (req.session.shop) {
-
         const shop = req.session.shop;
 
         if (shop.availablesports && shop.availablesports.length > 0) {
             shop.availablesports = shop.availablesports.map((sport) => {
                 try {
-                    const filepath = path.join(__dirname, '..', sport.image);
-                    const imageBuffer = fs.readFileSync(filepath);
-                    // Convert the image to a base64 string with MIME type
-                    sport.getimage = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+                    if (sport.image && sport.image.data) {
+                        const bufferData = Buffer.isBuffer(sport.image.data)
+                            ? sport.image.data
+                            : Buffer.from(sport.image.data.data);
+
+                        const base64Image = bufferData.toString('base64');
+                        const mimeType = sport.image.contentType || 'image/jpeg';
+                        sport.getimage = `data:${mimeType};base64,${base64Image}`;
+                    } else {
+                        sport.getimage = '';
+                    }
                 } catch (imageError) {
-                    console.error(`Error reading image for ${sport.groundname}:`, imageError);
-                    sport.getimage = ''; // Push an empty string if image not found
+                    console.error(`Error processing image for ${sport.groundname}:`, imageError);
+                    sport.getimage = '';
                 }
                 return sport;
             });
@@ -126,11 +131,12 @@ exports.checkshopsession = (req, res) => {
             console.log('No available sports found for this shop.');
         }
 
-        res.status(200).json({ msg: 'Shop session exists', shop: req.session.shop });
+        res.status(200).json({ msg: 'Shop session exists', shop });
     } else {
         res.status(400).json({ msg: "Session does not exist" });
     }
 };
+
 
 
 
@@ -195,11 +201,6 @@ exports.addground = async (req, res) => {
             return res.status(404).json({ msg: 'Shop not found' });
         }
 
-        // Determine the file extension from the mimetype
-        const fileExtension = image.originalname.split('.').pop();
-        const imagePath = `public/images/${shopId}${groundname}.${fileExtension}`; // Fixed file path format
-
-        // Create a new ground object
         const newGround = {
             sport,
             groundname,
@@ -212,7 +213,10 @@ exports.addground = async (req, res) => {
             facilities: facilities.split(',').map(facility => facility.trim()), // Convert to array
             surfacetype: surfaceType,
             availability: parsedAvailability, // Use parsed availability
-            image: imagePath, // Save the image path if it exists
+            image: {
+                data: image.buffer,
+                contentType: image.mimetype
+            },
             status: 'Active', // Default status
             verify: false,    // Default verification
             appliedforverification: false // Default verification application
@@ -223,10 +227,15 @@ exports.addground = async (req, res) => {
         await shop.save();
         shop.availablesports = shop.availablesports.map((sport) => {
             try {
-                const filepath = path.join(__dirname, '..', sport.image);
-                if (fs.existsSync(filepath)) {
-                    const imageBuffer = fs.readFileSync(filepath);
-                    sport.getimage = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
+
+                if (sport.image && sport.image.data) {
+                    const bufferData = Buffer.isBuffer(sport.image.data)
+                            ? sport.image.data
+                            : Buffer.from(sport.image.data.data);
+
+                        const base64Image = bufferData.toString('base64');
+                        const mimeType = sport.image.contentType || 'image/jpeg';
+                        sport.getimage = `data:${mimeType};base64,${base64Image}`;
                 } else {
                     sport.getimage = ''; // If image doesn't exist, use an empty string
                 }
@@ -271,87 +280,32 @@ exports.applyforverification = async (req, res) => {
     }
   };
   
- // Adjust the path to your Shop model
-/*
-exports.loadVenues = async (req, res) => {
-  try {
-    // Fetch all shops with at least one verified sport ground
-    const shopsWithVenues = await Shop.find({ 'availablesports.verify': true }).populate('availablesports.sport').exec();
 
-    // Create a response format for venues
-    const venueData = shopsWithVenues.map(shop => {
-      // Filter only verified sports grounds
-      const verifiedSports = shop.availablesports.filter(sport => sport.verify);
-
-      // Return only if there are verified sports grounds
-      return verifiedSports.map(sport => {
-        // Construct the image path
-        const imagePath = path.join(__dirname, '..', sport.image); // Adjust path as needed
-        let imageBase64 = '';
-        // Read the image file and convert to base64
-        try {
-          const imageBuffer = fs.readFileSync(imagePath);
-          imageBase64 = imageBuffer.toString('base64');
-        } catch (imageError) {
-          console.error(`Error reading image for ${sport.groundname}:`, imageError);
-          imageBase64 = ''; // Default to an empty string if image not found
-        }
-
-        // Return venue data including ground dimensions, availability, and facilities
-        return {
-          name: shop.shopname,
-          address: shop.address,
-          image: `data:image/jpeg;base64,${imageBase64}`, // Include base64 encoded image
-          groundname: sport.groundname,
-          priceperhour: sport.priceperhour,
-          maxplayers: sport.maxplayers,
-          surfacetype: sport.surfacetype,
-          status: sport.status,
-          sportname:sport.sport?.name,
-          grounddimensions: sport.grounddimensions,
-          availability: sport.availability,
-          facilities: sport.facilities
-        };
-      });
-    }).flat(); // Flatten the array of arrays into a single array
-
-    // Check if any verified venues were found
-    if (venueData.length === 0) {
-      return res.status(404).json({ message: 'No verified venues found' });
-    }
-
-    // Send the venues data in response
-    res.status(200).json(venueData);
-  } catch (error) {
-    console.error('Error fetching venues:', error);
-    res.status(500).json({ message: 'Internal server error' });
-  }
-};*/
+    
 exports.loadVenues = async (req, res) => {
     try {
-
-
       const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
         .populate("availablesports.sport")
         .exec();
   
-      // Step 3: Format venue data
       const venueData = shopsWithVenues
         .map((shop) => {
           const verifiedSports = shop.availablesports.filter((sport) => sport.verify);
           return verifiedSports.map((sport) => {
-            const imagePath = path.join(__dirname, "..", sport.image);
             let imageBase64 = "";
             try {
-              const imageBuffer = fs.readFileSync(imagePath);
-              imageBase64 = imageBuffer.toString("base64");
+              if (sport.image && sport.image.data) {
+                const mimeType = sport.image.contentType || 'image/jpeg';
+                imageBase64 = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
+              }
             } catch (imageError) {
-              console.error(`Error reading image for ${sport.groundname}:, imageError`);
+              console.error(`Error reading image for ${sport.groundname}:`, imageError);
             }
+  
             return {
               name: shop.shopname,
               address: shop.address,
-              image: `data:image/jpeg;base64,${imageBase64}`,
+              image: imageBase64,
               groundname: sport.groundname,
               priceperhour: sport.priceperhour,
               maxplayers: sport.maxplayers,
@@ -366,19 +320,17 @@ exports.loadVenues = async (req, res) => {
         })
         .flat();
   
-      // Step 4: If no venues found, return 404
       if (venueData.length === 0) {
         return res.status(404).json({ message: "No verified venues found" });
       }
   
-  
-      // Step 6: Return response
       res.status(200).json(venueData);
     } catch (error) {
       console.error("Error fetching venues:", error);
       res.status(500).json({ message: "Internal server error" });
     }
-};
+  };
+  
 
 exports.getcitieslist=async(req,res)=>{
     try{
@@ -392,58 +344,54 @@ exports.getcitieslist=async(req,res)=>{
 
 exports.loadGround = async (req, res) => {
     try {
-        const { name } = req.body;
-        const shopname = name.split('_')[0].replace(/-/g, ' ');
-        const groundname = name.split('_')[1].replace(/-/g, ' ');        
-        const shop = await Shop.findOne({ shopname }).populate({
-            path: 'city',
-            populate: { path: 'state' }
-        });
-        if (!shop) {
-            return res.status(404).json({ message: 'Shop not found.' });
-        }
-
-        const groundIndex = shop.availablesports.findIndex(sport => sport.groundname === groundname);
-        if (groundIndex === -1) {
-            return res.status(404).json({ message: 'Ground not found in this shop.' });
-        }
-
-        const ground = shop.availablesports[groundIndex];
-        const imagePath = path.join(__dirname, '..', ground.image);
-
-        // Check if the image path exists and convert to Base64
-        if (ground.image) {
-            // Read the image file and convert to base64
-            try {
-                const imageBuffer = fs.readFileSync(imagePath);
-                const imageBase64 = imageBuffer.toString('base64');
-                const imageType = path.extname(ground.image).substring(1); // Get the image type
-                ground.image = `data:image/${imageType};base64,${imageBase64}`;
-            } catch (imageError) {
-                console.error(`Error reading image for ${ground.groundname}:`, imageError);
-                ground.image = null; // Set image to null if error occurs
-            }
-        }
-        const address=shop.address;
-        
-        const shopbookings = await Booking.find({ shop: shop._id }).populate('user','username');
-        const groundfeedbacks = shopbookings
-            .filter(feedback => feedback.groundname === ground.groundname)
-            .map(feedback => ({
-                username: feedback.user?.username || null,
-                rating: feedback.feedback?.rating || null,
-                review: feedback.feedback?.review || null,
-                feedbackDate: feedback.feedback?.feedbackDate || null,
-            }));
+      const { name } = req.body;
+      const shopname = name.split('_')[0].replace(/-/g, ' ');
+      const groundname = name.split('_')[1].replace(/-/g, ' ');        
   
-
-    res.status(200).json({shop,ground,address,groundfeedbacks});
+      const shop = await Shop.findOne({ shopname }).populate({
+        path: 'city',
+        populate: { path: 'state' }
+      });
+  
+      if (!shop) {
+        return res.status(404).json({ message: 'Shop not found.' });
+      }
+  
+      const groundIndex = shop.availablesports.findIndex(sport => sport.groundname === groundname);
+      if (groundIndex === -1) {
+        return res.status(404).json({ message: 'Ground not found in this shop.' });
+      }
+  
+      const ground = shop.availablesports[groundIndex];
+      
+      // Convert MongoDB image buffer to base64
+      if (ground.image && ground.image.data) {
+        const mimeType = ground.image.contentType || 'image/jpeg';
+        getimage = `data:${mimeType};base64,${ground.image.data.toString('base64')}`;
+      } else {
+        getimage = null;
+      }
+  
+      const address = shop.address;
+  
+      const shopbookings = await Booking.find({ shop: shop._id }).populate('user', 'username');
+      const groundfeedbacks = shopbookings
+        .filter(feedback => feedback.groundname === ground.groundname)
+        .map(feedback => ({
+          username: feedback.user?.username || null,
+          rating: feedback.feedback?.rating || null,
+          review: feedback.feedback?.review || null,
+          feedbackDate: feedback.feedback?.feedbackDate || null,
+        }));
+  
+      res.status(200).json({ shop, ground, address, groundfeedbacks,getimage });
+  
     } catch (error) {
-        console.error('Error loading ground:', error);
-        res.status(500).json({ message: 'An error occurred while loading the ground.' });
+      console.error('Error loading ground:', error);
+      res.status(500).json({ message: 'An error occurred while loading the ground.' });
     }
-};
-
+  };
+  
 exports.bookground = async (req, res) => {
     const {  shopname, groundname, date, timeSlot,groundfee,platformfee, amountPaid } = req.body;
     console.log(shopname+ groundname+ date+ timeSlot+ amountPaid )
@@ -509,7 +457,6 @@ exports.checkRevenue = async (req, res) => {
             // Get the ground name from the booking
             const groundName = booking.groundname;
             const groundFee = booking.groundfee || 0; // Get ground fee or default to 0
-            console.log(groundFee);
             totalRevenue += groundFee; // Increment total revenue
 
             // Increment ground revenue in the map
@@ -524,7 +471,6 @@ exports.checkRevenue = async (req, res) => {
             }
         });
 
-        console.log("Ground Revenue Map:", groundRevenueMap); // Log the revenue map
 
         // Transform the revenue map into an array format for response
         const groundRevenues = Object.values(groundRevenueMap);

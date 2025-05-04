@@ -11,16 +11,8 @@ const multer = require('multer');
  */
 
 // Multer configuration (unchanged)
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'public/images');
-    },
-    filename: (req, file, cb) => {
-        const fileExtension = file.originalname.split('.').pop();
-        cb(null, `${req.session.shop._id}${req.body.groundname}.${fileExtension}`);
-    }
-});
 
+const storage = multer.memoryStorage();
 const fileFilter = (req, file, cb) => {
     if (file.mimetype.startsWith('image/')) {
         cb(null, true);
@@ -28,7 +20,7 @@ const fileFilter = (req, file, cb) => {
         cb(new Error('Invalid file type, only images are allowed!'), false);
     }
 };
-const upload = multer({ storage, fileFilter });
+const upload = multer({storage,fileFilter });
 
 /**
  * @swagger

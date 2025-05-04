@@ -13,8 +13,6 @@ const path=require('path');
 const displaydetails = async () => {
     try {
         const users = await User.find();
-        
-        // Use .lean() to get plain JavaScript objects
         const shops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find();
 
@@ -22,17 +20,21 @@ const displaydetails = async () => {
             if (shop.availablesports && shop.availablesports.length > 0) {
                 shop.availablesports = shop.availablesports.map((sport) => {
                     try {
-                        const filepath = path.join(__dirname, '..', sport.image);
-                        const imageBuffer = fs.readFileSync(filepath);
-                        sport.getimage = `data:image/jpeg;base64,${imageBuffer.toString('base64')}`;
-                    } catch (error) {
-                        console.error(`Error reading image for ${sport.groundname}:`, error);
-                        sport.getimage = '';  // Empty string in case of error
+                        if (sport.image && sport.image.data) {
+                            const mimeType = sport.image.contentType || 'image/jpeg';
+                            sport.getimage = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
+                        } else {
+                            sport.getimage = '';
+                        }
+                    } catch (imageError) {
+                        console.error(`Error processing image for ${sport.groundname || 'Unnamed Ground'}:`, imageError);
+                        sport.getimage = '';
                     }
                     return sport;
                 });
             }
         });
+
         return { users, shops, queries };
     } catch (err) {
         console.error("Error retrieving data:", err);

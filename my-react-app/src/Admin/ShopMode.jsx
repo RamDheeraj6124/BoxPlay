@@ -21,6 +21,7 @@ const ShopMode = () => {
                 const data = await response.json();
                 setUsername(data.username);
                 setShops(data.details.shops);
+                console.log(data.details.shops)
 
             } else {
                 navigate('/login');
