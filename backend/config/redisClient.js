@@ -1,20 +1,19 @@
-const Redis = require('ioredis');
-require('dotenv').config();
+const { createClient } = require('redis');
 
-const redis = new Redis({
-  host: process.env.REDIS_HOST,
-  port: process.env.REDIS_PORT,
-  username: process.env.REDIS_USERNAME,
-  password: process.env.REDIS_PASSWORD,
-  tls: {} // For Redis Cloud (optional but recommended)
+const client = createClient({
+  socket: {
+    host: process.env.REDIS_HOST,
+    port: process.env.REDIS_PORT,
+    tls: true  // ✅ Enable TLS
+  },
+  username: process.env.REDIS_USERNAME, // only needed if Redis uses ACL
+  password: process.env.REDIS_PASSWORD
 });
 
-redis.on('connect', () => {
-  console.log('Connected to Redis');
-});
-
-redis.on('error', (err) => {
+client.on('error', (err) => {
   console.error('Redis connection error:', err);
 });
 
-module.exports = redis;
+client.connect();
+
+module.exports = client;
