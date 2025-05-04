@@ -21,57 +21,69 @@ const redis = require('./config/redisClient');
 
 const app = express();
 
-// Detect test environment
+// Environment detection
+const isProduction = process.env.NODE_ENV === 'production';
 const isTestEnv = process.env.NODE_ENV === 'test';
 
+// Trust proxy in production
 app.set('trust proxy', 1);
 
-// MongoDB connection - skip in test environment
+// Database connections
 if (!isTestEnv) {
-  dbconnect();
+  dbconnect().catch(err => {
+    console.error('Database connection error:', err);
+    process.exit(1);
+  });
 }
 
-// Redis test - skip in test environment
+// Redis connection
 if (!isTestEnv) {
-  redis.set('foo', 'bar');
-  redis.get('foo', (err, result) => {
-    if (err) {
-      console.error('Redis GET error:', err);
-    } else {
-      console.log('Redis value for "foo":', result);
-    }
+  redis.on('error', (err) => console.error('Redis Client Error:', err));
+  redis.connect().then(() => {
+    console.log('Redis connected successfully');
+    redis.set('foo', 'bar').then(() => {
+      redis.get('foo').then((val) => {
+        console.log('Redis test value:', val);
+      });
+    });
   });
 }
 
 // Middleware setup
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json({ limit: '10mb' }));
+app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Security middleware
-app.use(
-  helmet({
-    contentSecurityPolicy: {
-      directives: {
-        "script-src": ["'self'", "example.com"],
-      },
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.example.com"],
+      styleSrc: ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "cdn.example.com"],
+      connectSrc: ["'self'", "api.example.com"],
+      fontSrc: ["'self'", "fonts.gstatic.com"],
+      objectSrc: ["'none'"],
+      upgradeInsecureRequests: [],
     },
-  })
-);
+  },
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+}));
 
-// Swagger setup - skip in test environment
+// Swagger setup
 if (!isTestEnv) {
   const swaggerOptions = {
     definition: {
       openapi: '3.0.0',
       info: {
-        title: 'Your API Documentation',
+        title: 'API Documentation',
         version: '1.0.0',
-        description: 'API docs for your Node.js application',
+        description: 'API documentation for the application',
       },
       servers: [
-        { url: 'https://boxplay-2.onrender.com' },
-        { url: 'http://localhost:3000' },
+        { url: 'https://boxplay-2.onrender.com', description: 'Production server' },
+        { url: 'http://localhost:3000', description: 'Local development' },
       ],
       components: {
         securitySchemes: {
@@ -86,24 +98,25 @@ if (!isTestEnv) {
     },
     apis: ['./routes/*.js'],
   };
+
   const swaggerSpec = swaggerJsdoc(swaggerOptions);
   app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 }
 
-// Logging setup - skip file logging in test environment
-app.use(morgan('tiny'));
-app.use(morgan('combined'));
-app.use(morgan(':method :url :status'));
+// Logging setup
+app.use(morgan('dev'));
 
 if (!isTestEnv) {
+  const logDirectory = path.join(__dirname, 'logs');
   const accessLogStream = rfs.createStream('access.log', {
     interval: '1d',
-    path: path.join(__dirname, 'log'),
+    path: logDirectory,
+    compress: 'gzip',
   });
   app.use(morgan('combined', { stream: accessLogStream }));
 }
 
-// CORS setup
+// CORS configuration
 const allowedOrigins = [
   'http://localhost:3000',
   'https://boxplay-2.onrender.com',
@@ -117,22 +130,42 @@ app.use(cors({
       callback(new Error('Not allowed by CORS'));
     }
   },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true,
+  preflightContinue: false,
+  optionsSuccessStatus: 204
 }));
 
-// Session configuration - use memory store in test environment
+// Session configuration
+const sessionStore = MongoStore.create({
+  mongoUrl: process.env.MONGO_URI,
+  collectionName: 'sessions',
+  ttl: 14 * 24 * 60 * 60, // 14 days
+  autoRemove: 'native',
+  crypto: {
+    secret: process.env.SESSION_ENCRYPTION_KEY || 'default-secret'
+  }
+});
+
+sessionStore.on('error', function(error) {
+  console.error('SESSION STORE ERROR:', error);
+});
+
 app.use(session({
-  secret: process.env.SESSION_SECRET || 'project',
+  name: 'sessionId',
+  secret: process.env.SESSION_SECRET || 'fallback-secret-key',
   resave: false,
   saveUninitialized: false,
-  store: isTestEnv ? new session.MemoryStore() : MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
+  store: isTestEnv ? new session.MemoryStore() : sessionStore,
   cookie: {
-    secure: process.env.NODE_ENV === 'production', // Set secure cookies only in production
+    secure: isProduction,
     httpOnly: true,
-    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Adjust for local development
-    maxAge: 24 * 60 * 60 * 1000
-  }
+    sameSite: isProduction ? 'none' : 'lax',
+    maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    domain: isProduction ? '.yourdomain.com' : undefined
+  },
+  rolling: true
 }));
 
 // Routes
@@ -140,6 +173,26 @@ app.use('/user', userroutes);
 app.use('/shop', shoproutes);
 app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
+
+// Health check endpoint
+app.get('/health', (req, res) => {
+  res.status(200).json({
+    status: 'OK',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+    database: isTestEnv ? 'test' : 'connected',
+    redis: isTestEnv ? 'test' : 'connected'
+  });
+});
+
+// 404 handler
+app.use((req, res, next) => {
+  res.status(404).json({
+    success: false,
+    message: 'Route not found',
+    path: req.originalUrl
+  });
+});
 
 // Error handler
 app.use(errorHandler);
@@ -150,5 +203,13 @@ module.exports = app;
 // Start server only if not in test environment
 if (!isTestEnv) {
   const PORT = process.env.PORT || 5000;
-  app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
+  const server = app.listen(PORT, () => {
+    console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  });
+
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err) => {
+    console.error('Unhandled Rejection:', err);
+    server.close(() => process.exit(1));
+  });
 }
