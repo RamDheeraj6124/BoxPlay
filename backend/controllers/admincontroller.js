@@ -8,37 +8,52 @@ const State = require('../models/State');
 const City= require('../models/City');
 const fs=require('fs');
 const path=require('path');
+const redis = require('../config/redisClient');
 
 
-const displaydetails = async () => {
+const displaydetails = async (req, res) => {
     try {
-        const users = await User.find();
+        const cacheKey = 'Displayadmin';
+        const cachedData = await redis.get(cacheKey);
+
+        if (cachedData) {
+            console.log('Serving venues from Redis cache');
+            return res.status(200).json(JSON.parse(cachedData));
+        }
+
+        const users = await User.find().lean();
         const shops = await Shop.find().populate('availablesports.sport').lean(); 
-        const queries = await Query.find();
+        const queries = await Query.find().lean();
 
         shops.forEach((shop) => {
             if (shop.availablesports && shop.availablesports.length > 0) {
-                shop.availablesports = shop.availablesports.map((sport) => {
+                shop.availablesports = shop.availablesports.map((item) => {
+                    const sport = item.sport || {};
                     try {
                         if (sport.image && sport.image.data) {
                             const mimeType = sport.image.contentType || 'image/jpeg';
-                            sport.getimage = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
+                            sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
                         } else {
                             sport.getimage = '';
                         }
                     } catch (imageError) {
-                        console.error(`Error processing image for ${sport.groundname || 'Unnamed Ground'}:`, imageError);
+                        console.error(`Error processing image for sport:`, imageError);
                         sport.getimage = '';
                     }
-                    return sport;
+                    item.sport = sport;
+                    return item;
                 });
             }
         });
 
-        return { users, shops, queries };
+        const responseData = { users, shops, queries };
+
+        await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);
+        return res.status(200).json(responseData);
+
     } catch (err) {
-        console.error("Error retrieving data:", err);
-        throw new Error("Error retrieving data");
+        console.error("❌ Error retrieving data:", err);
+        return res.status(500).json({ message: "Error retrieving data" });
     }
 };
 

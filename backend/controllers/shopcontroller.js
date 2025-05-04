@@ -335,7 +335,7 @@ exports.loadVenues = async (req, res) => {
     // Step 1: Check Redis Cache
     const cachedData = await redis.get(cacheKey);
     if (cachedData) {
-      console.log('✅ Serving venues from Redis cache');
+      console.log('Serving venues from Redis cache');
       return res.status(200).json(JSON.parse(cachedData));
     }
 
