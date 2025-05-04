@@ -3,10 +3,16 @@
   "version": "1.0.0",
   "main": "server.js",
   "scripts": {
-    "test": "cross-env NODE_ENV=test jest --detectOpenHandles --forceExit",
+    "test": "jest --forceExit --detectOpenHandles",
+    "prepare": "husky install",
     "test:watch": "cross-env NODE_ENV=test jest --watch",
     "start": "node server.js",
     "dev": "nodemon server.js"
+  },
+  "lint-staged": {
+    "**/*.js": [
+      "npm test -- --findRelatedTests --passWithNoTests"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -45,6 +51,7 @@
     "cross-env": "^7.0.3",
     "husky": "^9.1.7",
     "jest": "^29.7.0",
+    "lint-staged": "^15.5.1",
     "mongodb-memory-server": "^10.1.4",
     "supertest": "^7.1.0"
   }
