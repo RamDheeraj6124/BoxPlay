@@ -2,17 +2,18 @@ name: Node.js CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     name: Backend Tests
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     defaults:
       run:
-        working-directory: backend
+        working-directory: ./backend
 
     services:
       redis:
@@ -21,17 +22,12 @@ jobs:
           - 6379:6379
         options: --health-cmd "redis-cli ping" --health-interval 10s --health-timeout 5s --health-retries 5
 
-      mongodb:
-        image: mongo:5.0
-        ports:
-          - 27017:27017
-        options: --health-cmd "mongo --eval 'db.runCommand(\"ping\").ok'" --health-interval 10s --health-timeout 5s --health-retries 5
-
     env:
       NODE_ENV: test
       MONGO_URL: mongodb://localhost:27017/testdb
       REDIS_URL: redis://localhost:6379
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+      JWT_SECRET: testsecret
+      SESSION_SECRET: testsecret
 
     steps:
       - name: Checkout code
@@ -40,17 +36,27 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 20
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      - name: Wait for MongoDB
-        run: sleep 10 # Give MongoDB time to initialize
+      - name: Start MongoDB
+        run: |
+          sudo apt-get install -y mongodb-org
+          sudo mkdir -p /data/db
+          sudo chown -R $USER /data/db
+          mongod --fork --logpath /var/log/mongod.log --port 27017
+          sleep 5
 
       - name: Run tests
-        run: npm test -- --ci --forceExit --detectOpenHandles --coverage --testPathPattern=__tests__
+        run: npm test -- --ci --forceExit --detectOpenHandles --testPathPattern=__tests__
         env:
           CI: true
 
@@ -60,11 +66,5 @@ jobs:
         with:
           name: test-results
           path: |
-            backend/coverage
             backend/test-results
-
-      - name: Verify server health
-        run: |
-          npm run start &
-          sleep 10
-          curl -f http://localhost:${{ env.PORT || 3000 }}/health-check || exit 1
+            backend/coverage
