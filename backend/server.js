@@ -9,32 +9,15 @@ const session = require('express-session');
 const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
-require('dotenv').config();
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
-const MongoStore = require('connect-mongo');
 const rfs = require('rotating-file-stream');
-const connectRedis = require('connect-redis');
+const RedisStore = require('connect-redis').default;
 const Redis = require('ioredis');
-
-// Setup Redis client
-const redisClient = new Redis(process.env.REDIS_URL, {
-  tls: process.env.REDIS_URL.includes('red-') ? {} : undefined,
-});
-
-redisClient.on('connect', () => {
-  console.log('✅ Connected to Redis');
-});
-
-redisClient.on('error', (err) => {
-  console.error('❌ Redis error:', err);
-});
-
-// Setup Redis Store for sessions
-const RedisStore = connectRedis(session);
+require('dotenv').config();
 
 const app = express();
 app.set('trust proxy', 1);
@@ -42,7 +25,18 @@ app.set('trust proxy', 1);
 // Connect to MongoDB
 dbconnect();
 
-// Middleware setup
+// Connect to Redis
+const redisClient = new Redis(process.env.REDIS_URL, {
+  tls: process.env.REDIS_URL.includes('red-') ? {} : undefined,
+});
+redisClient.on('connect', () => {
+  console.log('✅ Connected to Redis');
+});
+redisClient.on('error', (err) => {
+  console.error('❌ Redis error:', err);
+});
+
+// Middleware
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -58,7 +52,7 @@ app.use(
   })
 );
 
-// Swagger config
+// Swagger setup
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -69,7 +63,7 @@ const swaggerOptions = {
     },
     servers: [
       { url: 'https://boxplay-2.onrender.com' },
-      { url: 'http://localhost:3000' }
+      { url: 'http://localhost:3000' },
     ],
     components: {
       securitySchemes: {
@@ -84,7 +78,6 @@ const swaggerOptions = {
   },
   apis: ['./routes/*.js'],
 };
-
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
 // Logging
@@ -93,40 +86,41 @@ app.use(morgan('combined'));
 app.use(morgan(':method :url :status'));
 const accessLogStream = rfs.createStream('access.log', {
   interval: '1d',
+  path: path.join(__dirname, 'log'),
 });
 app.use(morgan('combined', { stream: accessLogStream }));
 
-// CORS
-const allowedOrigins = [
-  'http://localhost:3000',
-  'https://boxplay-2.onrender.com',
-];
+// CORS setup
+const allowedOrigins = ['http://localhost:3000', 'https://boxplay-2.onrender.com'];
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['GET', 'POST', 'PUT', 'DELETE'],
+    credentials: true,
+  })
+);
 
-app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  credentials: true
-}));
-
-// Session configuration using Redis
-app.use(session({
-  store: new RedisStore({ client: redisClient }),
-  secret: process.env.SESSION_SECRET || 'project',
-  resave: false,
-  saveUninitialized: false,
-  cookie: {
-    secure: true,
-    httpOnly: true,
-    sameSite: 'none',
-    maxAge: 24 * 60 * 60 * 1000
-  }
-}));
+// Redis session store
+app.use(
+  session({
+    store: new RedisStore({ client: redisClient }),
+    secret: process.env.SESSION_SECRET || 'project',
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+      secure: true,
+      httpOnly: true,
+      sameSite: 'none',
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
+    },
+  })
+);
 
 // Routes
 app.use('/user', userroutes);
@@ -135,12 +129,9 @@ app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Error handling
+// Error handling middleware
 app.use(errorHandler);
 
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => console.log(`✅ Server running on port ${PORT}`));
-
-// Export redis client for use in other files
-module.exports = redisClient;
+app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
