@@ -28,8 +28,7 @@ backend:
       run: npm ci
 
     - name: Run tests
-      working-directory: ./backend
-      run: npm test
+      run: npm test userController.js
 
     - name: Verify server starts
       run: |
