@@ -326,7 +326,7 @@ exports.loadVenues = async (req, res) => {
   };
 */
 
-const redis = require('./config/redisClient'); // Adjust path as needed
+const redis = require('../config/redisClient'); // Adjust path as needed
 
 exports.loadVenues = async (req, res) => {
   try {
