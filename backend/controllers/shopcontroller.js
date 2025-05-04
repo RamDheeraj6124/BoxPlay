@@ -343,6 +343,8 @@ exports.loadVenues = async (req, res) => {
     const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
       .populate("availablesports.sport")
       .exec();
+    if (!shopsWithVenues || shopsWithVenues.length === 0) {
+      return res.status(404).json({ message: "No verified venues found" });}
 
     const venueData = shopsWithVenues
       .map((shop) => {

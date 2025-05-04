@@ -237,6 +237,12 @@ exports.userbookings=async (req,res)=>{
 // Update user contact
 exports.updatecontact = async (req, res) => {
     const { contact } = req.body;
+
+    // Check if user session exists
+    if (!req.session || !req.session.user) {
+        return res.status(404).json({ message: 'User not found or session expired' });
+    }
+
     const userId = req.session.user._id;
 
     if (!contact) {
@@ -246,7 +252,13 @@ exports.updatecontact = async (req, res) => {
     try {
         // Update the user's contact
         const updatedUser = await User.findByIdAndUpdate(userId, { contact }, { new: true });
-        req.session.user = updatedUser; // Update session with new contact
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update session with new contact
+        req.session.user = updatedUser;
 
         res.status(200).json(updatedUser);
     } catch (err) {

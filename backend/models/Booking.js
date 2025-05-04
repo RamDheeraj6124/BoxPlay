@@ -1,35 +1,39 @@
-// models/Booking.js
 const mongoose = require('mongoose');
 
 const bookingSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     shop: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Shop'
+        ref: 'Shop',
+        required: true
     },
-    groundname:{
-     type:String,
+    groundname: {
+        type: String,
+        required: true
     },
     date: {
         type: Date,
         required: true
     },
-    platformfee:{
-     type:Number
+    platformfee: {
+        type: Number,
+        required: true
     },
-    groundfee:{
-     type:Number
+    groundfee: {
+        type: Number,
+        required: true
     },
     timeSlot: {
         start: {
-            type: String, 
+            type: Date,
             required: true
         },
         end: {
-            type: String, 
+            type: Date,
             required: true
         }
     },
@@ -39,44 +43,52 @@ const bookingSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Confirmed', 'Cancelled'],
+        enum: ['Pending', 'Confirmed', 'Cancelled'],
         default: 'Pending'
     },
     paymentDate: {
-        type: Date
+        type: Date,
+        default: null
     },
     transactionId: {
-        type: String 
+        type: String,
+        default: null
     },
     cancellationReason: {
         type: String,
+        default: null
     },
     cancellationDate: {
-        type: Date 
+        type: Date,
+        default: null
     },
     refundAmount: {
-        type: Number, 
-    },checkInTime: {
-        type: Date 
+        type: Number,
+        default: 0
+    },
+    checkInTime: {
+        type: Date,
+        default: null
     },
     checkOutTime: {
-        type: Date 
+        type: Date,
+        default: null
     },
     feedback: {
         rating: {
-            type: Number, 
+            type: Number,
             min: 1,
             max: 5
         },
         review: {
-            type: String 
+            type: String,
+            maxlength: 500
         },
         feedbackDate: {
-            type: Date
+            type: Date,
+            default: null
         }
     }
-        
-    
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', bookingSchema);

@@ -8,9 +8,9 @@ const adminroutes = require('./routes/adminroutes');
 const paymentRoutes = require('./routes/payment');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser'); 
-const helmet = require('helmet'); 
-require('dotenv').config(); 
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+require('dotenv').config();
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const morgan = require('morgan');
@@ -128,9 +128,9 @@ app.use(session({
   saveUninitialized: false,
   store: isTestEnv ? new session.MemoryStore() : MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
-    secure: true,
+    secure: process.env.NODE_ENV === 'production', // Set secure cookies only in production
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Adjust for local development
     maxAge: 24 * 60 * 60 * 1000
   }
 }));

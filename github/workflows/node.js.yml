@@ -28,6 +28,7 @@ backend:
       run: npm ci
 
     - name: Run tests
+      working-directory: ./backend
       run: npm test
 
     - name: Verify server starts

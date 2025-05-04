@@ -357,7 +357,7 @@ router.post('/addcity', Admincontroller.addcity);
 /**
  * @swagger
  * /admin/logout:
- *   post:
+ *   post:a
  *     summary: Admin logout
  *     tags: [Admin]
  *     responses:

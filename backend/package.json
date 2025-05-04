@@ -43,6 +43,7 @@
   "description": "",
   "devDependencies": {
     "cross-env": "^7.0.3",
+    "husky": "^9.1.7",
     "jest": "^29.7.0",
     "mongodb-memory-server": "^10.1.4",
     "supertest": "^7.1.0"
