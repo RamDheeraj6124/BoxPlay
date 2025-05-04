@@ -1,76 +1,70 @@
-name: Node.js CI (With Test Visibility)
+name: Backend - Node.js Express App Build
 
 on:
   push:
-    branches: [main]
+    branches:
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 jobs:
-  test:
-    name: Backend Tests
+  backend:
+    name: Backend - Node.js Express App Build
     runs-on: ubuntu-latest
-    timeout-minutes: 10
-
-    services:
-      redis:
-        image: redis:6
-        ports:
-          - 6379:6379
+    needs: frontend
+    defaults:
+      run:
+        working-directory: backend
 
     env:
       NODE_ENV: test
       MONGO_URL: mongodb://localhost:27017/testdb
-      REDIS_URL: redis://localhost:6379
-      JWT_SECRET: testsecret
-      SESSION_SECRET: testsecret
+      # Add other required environment variables here
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Cache node modules
+        uses: actions/cache@v3
+        with:
+          path: backend/node_modules
+          key: ${{ runner.os }}-backend-node-modules-${{ hashFiles('backend/package-lock.json') }}
+          restore-keys: |
+            ${{ runner.os }}-backend-node-modules-
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 18
           cache: 'npm'
 
       - name: Install dependencies
-        working-directory: ./backend
         run: npm ci
 
-      - name: Start MongoDB
+      - name: Start MongoDB Memory Server
         run: |
-          sudo apt-get update
-          sudo apt-get install -y mongodb-org
-          sudo mkdir -p /data/db
-          sudo chown -R $USER /data/db
-          mongod --fork --logpath /var/log/mongod.log --port 27017
+          mkdir -p /tmp/mongodb
+          nohup mongod --dbpath /tmp/mongodb --port 27017 > /dev/null 2>&1 &
           sleep 5
 
-      - name: Run tests with reporting
-        working-directory: ./backend
-        run: |
-          npm test -- \
-            --ci \
-            --testLocationInResults \
-            --json \
-            --outputFile=test-results.json \
-            --coverage \
-            --coverageDirectory=coverage
+      - name: Run Jest tests
+        run: npm test -- --detectOpenHandles --forceExit --coverage
         env:
-          CI: true
-
-      - name: Show test results
-        if: always()
-        run: |
-          cat test-results.json
-          cat coverage/coverage-summary.json
+          JEST_JUNIT_OUTPUT: test-results/jest/results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
+        if: always()
         with:
-          name: test-results
+          name: jest-test-results
           path: |
-            backend/test-results.json
             backend/coverage
+            backend/test-results
+
+      - name: Verify server starts
+        run: |
+          npm run start &
+          sleep 10
+          curl -f http://localhost:${{ env.PORT }}/health-check || exit 1
