@@ -19,7 +19,7 @@ const MongoStore = require('connect-mongo');
 const rfs = require('rotating-file-stream');
 
 // Import Redis client
-const redis = require('./redisClient');
+const redis = require('./config/redisClient');
 
 const app = express();
 
