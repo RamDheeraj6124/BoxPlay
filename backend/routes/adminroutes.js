@@ -357,15 +357,16 @@ router.post('/addcity', Admincontroller.addcity);
 /**
  * @swagger
  * /admin/logout:
- *   post:a
+ *   post:
  *     summary: Admin logout
+ *     description: Logs out an admin user
  *     tags: [Admin]
+ *     security:
+ *       - bearerAuth: []
  *     responses:
  *       200:
- *         description: Logged out successfully
- *       400:
- *         description: No active session
+ *         description: Successfully logged out
  */
-router.post('/logout', Admincontroller.logout);
+router.post('/logout', adminController.logout);
 
 module.exports = router;

@@ -39,14 +39,15 @@ if (!isTestEnv) {
 // Redis connection
 if (!isTestEnv) {
   redis.on('error', (err) => console.error('Redis Client Error:', err));
-  redis.connect().then(() => {
-    console.log('Redis connected successfully');
-    redis.set('foo', 'bar').then(() => {
-      redis.get('foo').then((val) => {
-        console.log('Redis test value:', val);
-      });
-    });
-  });
+  
+  if (redis.status !== 'connecting' && redis.status !== 'connected') {
+    redis.connect().then(() => {
+      console.log('Redis connected successfully');
+      return redis.set('foo', 'bar');
+    }).then(() => redis.get('foo'))
+      .then((val) => console.log('Redis test value:', val))
+      .catch(err => console.error('Redis error:', err));
+  }
 }
 
 // Middleware setup
@@ -55,21 +56,7 @@ app.use(bodyParser.urlencoded({ extended: true, limit: '10mb' }));
 app.use(cookieParser());
 
 // Security middleware
-app.use(helmet({
-  contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      scriptSrc: ["'self'", "'unsafe-inline'", "cdn.example.com"],
-      styleSrc: ["'self'", "'unsafe-inline'", "fonts.googleapis.com"],
-      imgSrc: ["'self'", "data:", "cdn.example.com"],
-      connectSrc: ["'self'", "api.example.com"],
-      fontSrc: ["'self'", "fonts.gstatic.com"],
-      objectSrc: ["'none'"],
-      upgradeInsecureRequests: [],
-    },
-  },
-  crossOriginResourcePolicy: { policy: "cross-origin" },
-}));
+app.use(helmet());
 
 // Swagger setup
 if (!isTestEnv) {
@@ -123,17 +110,10 @@ const allowedOrigins = [
 ];
 
 app.use(cors({
-  origin: function (origin, callback) {
-    if (!origin || allowedOrigins.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
+  origin: allowedOrigins,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],
   credentials: true,
-  preflightContinue: false,
   optionsSuccessStatus: 204
 }));
 
@@ -142,10 +122,6 @@ const sessionStore = MongoStore.create({
   mongoUrl: process.env.MONGO_URI,
   collectionName: 'sessions',
   ttl: 14 * 24 * 60 * 60, // 14 days
-  autoRemove: 'native',
-  crypto: {
-    secret: process.env.SESSION_ENCRYPTION_KEY || 'default-secret'
-  }
 });
 
 sessionStore.on('error', function(error) {
@@ -163,7 +139,6 @@ app.use(session({
     httpOnly: true,
     sameSite: isProduction ? 'none' : 'lax',
     maxAge: 24 * 60 * 60 * 1000, // 24 hours
-    domain: isProduction ? '.yourdomain.com' : undefined
   },
   rolling: true
 }));
@@ -181,12 +156,12 @@ app.get('/health', (req, res) => {
     timestamp: new Date().toISOString(),
     uptime: process.uptime(),
     database: isTestEnv ? 'test' : 'connected',
-    redis: isTestEnv ? 'test' : 'connected'
+    redis: isTestEnv ? 'test' : redis.status
   });
 });
 
 // 404 handler
-app.use((req, res, next) => {
+app.use((req, res) => {
   res.status(404).json({
     success: false,
     message: 'Route not found',
@@ -197,6 +172,11 @@ app.use((req, res, next) => {
 // Error handler
 app.use(errorHandler);
 
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  console.error('Unhandled Rejection:', err);
+});
+
 // Export app for testing
 module.exports = app;
 
@@ -205,11 +185,5 @@ if (!isTestEnv) {
   const PORT = process.env.PORT || 5000;
   const server = app.listen(PORT, () => {
     console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
-  });
-
-  // Handle unhandled promise rejections
-  process.on('unhandledRejection', (err) => {
-    console.error('Unhandled Rejection:', err);
-    server.close(() => process.exit(1));
   });
 }
