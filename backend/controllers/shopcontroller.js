@@ -4,8 +4,6 @@ const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
 const City = require('../models/City');
 const dns = require('dns');
-const redisClient = require('../config/redisClient'); // import your Redis client
-const CACHE_KEY = 'venueData';
 
 
 const validateEmailDomain = async (email) => {
