@@ -7,21 +7,21 @@ const shoproutes = require('./routes/shoproutes');
 const adminroutes = require('./routes/adminroutes');
 const session = require('express-session');
 const bodyParser = require('body-parser');
-const cookieParser = require('cookie-parser');
-const helmet = require('helmet');
+const cookieParser = require('cookie-parser'); 
+const helmet = require('helmet'); 
+require('dotenv').config(); 
 const swaggerJsdoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
-const rfs = require('rotating-file-stream');
-const redisClient = require('./config/redisClient'); // ✅ USE THIS
-require('dotenv').config();
+const MongoStore = require('connect-mongo');
+var rfs = require('rotating-file-stream');
 
 const app = express();
+
 app.set('trust proxy', 1);
 
-// DB connect
 dbconnect();
 
 // Middleware setup
@@ -29,7 +29,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
 
-// Security headers
+// Security middleware
 app.use(
   helmet({
     contentSecurityPolicy: {
@@ -39,8 +39,6 @@ app.use(
     },
   })
 );
-
-// Swagger setup
 const swaggerOptions = {
   definition: {
     openapi: '3.0.0',
@@ -50,8 +48,7 @@ const swaggerOptions = {
       description: 'API docs for your Node.js application',
     },
     servers: [
-      { url: 'https://boxplay-2.onrender.com' },
-      { url: 'http://localhost:3000' },
+      { url: ['https://boxplay-2.onrender.com','http://localhost:3000'] },
     ],
     components: {
       securitySchemes: {
@@ -66,48 +63,52 @@ const swaggerOptions = {
   },
   apis: ['./routes/*.js'],
 };
+
 const swaggerSpec = swaggerJsdoc(swaggerOptions);
 
-// Logging
+
+
+// Logging setup
 app.use(morgan('tiny'));
 app.use(morgan('combined'));
 app.use(morgan(':method :url :status'));
-const accessLogStream = rfs.createStream('access.log', {
-  interval: '1d',
-  path: path.join(__dirname, 'log'),
+morgan.token("timed", "A new :method request :url :status ");
+
+var accessLogStream = rfs.createStream('access.log', {
+  interval: '1d', // rotate daily
 });
+
 app.use(morgan('combined', { stream: accessLogStream }));
+morgan.token("timed", "A new :method request :url :status ");
 
-// CORS setup
-const allowedOrigins = ['http://localhost:3000', 'https://boxplay-2.onrender.com'];
-app.use(
-  cors({
-    origin: function (origin, callback) {
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    methods: ['GET', 'POST', 'PUT', 'DELETE'],
-    credentials: true,
-  })
-);
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://boxplay-2.onrender.com',
+];
 
-// Redis session setup
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  credentials: true
+}));
+
+// Session configuration
 app.use(session({
-  store: new (require('connect-redis')(session))({
-    client: redisClient,
-    ttl: 86400,
-  }),
   secret: process.env.SESSION_SECRET || 'project',
   resave: false,
   saveUninitialized: false,
+  store: MongoStore.create({ mongoUrl: process.env.MONGO_URI }),
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000,
-    secure: true,
+    secure: true, // Always secure for cross-origin with sameSite: none
     httpOnly: true,
-    sameSite: 'none',
+    sameSite: 'none', // Required for cross-site cookies
+    maxAge: 24 * 60 * 60 * 1000 // 24 hours
   }
 }));
 
@@ -118,9 +119,11 @@ app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Error middleware
+
+
+// Error handling
 app.use(errorHandler);
 
-// Server start
+// Start server
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
