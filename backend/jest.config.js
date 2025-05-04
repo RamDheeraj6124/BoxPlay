@@ -1,8 +1,7 @@
 module.exports = {
     testEnvironment: 'node',
-    coveragePathIgnorePatterns: [
-      '/node_modules/',
-      '/config/'
-    ],
-    testTimeout: 10000
+    testMatch: ['**/__tests__/**/*.test.js'],
+    collectCoverage: true,
+    coverageDirectory: 'coverage',
   };
+  
