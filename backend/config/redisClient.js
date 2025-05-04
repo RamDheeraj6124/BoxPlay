@@ -1,15 +1,16 @@
 const Redis = require('ioredis');
-require('dotenv').config(); // Load environment variables from .env file
-const redis = new Redis(process.env.REDIS_URL, {
-  tls: process.env.REDIS_URL.includes('red-') ? {} : undefined // Required for Render external URLs
+require('dotenv').config();
+
+const redisClient = new Redis(process.env.REDIS_URL, {
+  tls: process.env.REDIS_URL.includes('rediss://') ? {} : undefined, // For Render-hosted Redis
 });
 
-redis.on('connect', () => {
+redisClient.on('connect', () => {
   console.log('✅ Connected to Redis');
 });
 
-redis.on('error', (err) => {
+redisClient.on('error', (err) => {
   console.error('❌ Redis error:', err);
 });
 
-module.exports = redis;
+module.exports = redisClient;

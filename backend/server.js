@@ -15,27 +15,16 @@ const paymentRoutes = require('./routes/payment');
 const morgan = require('morgan');
 const path = require('path');
 const rfs = require('rotating-file-stream');
-const Redis = require('ioredis');
-const RedisStore = require('connect-redis');  // Directly import the module, no need for .default
-const redisClient = require('./config/redisClient');
-
+const redisClient = require('./config/redisClient'); // ✅ USE THIS
 require('dotenv').config();
 
 const app = express();
 app.set('trust proxy', 1);
 
-// Connect to MongoDB
+// DB connect
 dbconnect();
 
-// Connect to Redis
-redisClient.on('connect', () => {
-  console.log('✅ Connected to Redis');
-});
-redisClient.on('error', (err) => {
-  console.error('❌ Redis error:', err);
-});
-
-// Middleware
+// Middleware setup
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(cookieParser());
@@ -105,14 +94,17 @@ app.use(
   })
 );
 
-// Redis session store
+// Redis session setup
 app.use(session({
-  store: new RedisStore({ client: redisClient }), // Updated to use the factory function
+  store: new (require('connect-redis')(session))({
+    client: redisClient,
+    ttl: 86400,
+  }),
   secret: process.env.SESSION_SECRET || 'project',
   resave: false,
   saveUninitialized: false,
   cookie: {
-    maxAge: 24 * 60 * 60 * 1000, // 1 day
+    maxAge: 24 * 60 * 60 * 1000,
     secure: true,
     httpOnly: true,
     sameSite: 'none',
@@ -126,9 +118,9 @@ app.use('/admin', adminroutes);
 app.use('/api/payment', paymentRoutes);
 app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
-// Error handling middleware
+// Error middleware
 app.use(errorHandler);
 
-// Start server
+// Server start
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => console.log(`Server running on port ${PORT}`));
