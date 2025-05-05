@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.16% </span>
+                <span class="strong">35.67% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>66/199</span>
+                <span class='fraction'>71/199</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">33.67% </span>
+                <span class="strong">36.22% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>66/196</span>
+                <span class='fraction'>71/196</span>
             </div>
         
             
@@ -441,15 +441,15 @@
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -470,10 +470,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-yes">1x</span>
+<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -799,16 +799,16 @@ const displaydetails = async (req, res) =&gt; {
         const cacheKey = 'Displayadmin';
         const cachedData = await redis.get(cacheKey);
 &nbsp;
-        <span class="missing-if-branch" title="else path not taken" >E</span>if (cachedData) {
-            console.log('Serving details from Redis cache');
-            return JSON.parse(cachedData);
+        <span class="missing-if-branch" title="if path not taken" >I</span>if (cachedData) {
+<span class="cstat-no" title="statement not covered" >            console.log('Serving details from Redis cache');</span>
+<span class="cstat-no" title="statement not covered" >            return JSON.parse(cachedData);</span>
         }
 &nbsp;
-        const users = <span class="cstat-no" title="statement not covered" >await User.find().lean();</span>
-        const shops = <span class="cstat-no" title="statement not covered" >await Shop.find().populate('availablesports.sport').lean(); </span>
-        const queries = <span class="cstat-no" title="statement not covered" >await Query.find().lean();</span>
+        const users = await User.find().lean();
+        const shops = await Shop.find().populate('availablesports.sport').lean(); 
+        const queries = await Query.find().lean();
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        shops.forEach(<span class="fstat-no" title="function not covered" >(s</span>hop) =&gt; {</span>
+        shops.forEach(<span class="fstat-no" title="function not covered" >(s</span>hop) =&gt; {
 <span class="cstat-no" title="statement not covered" >            if (shop.availablesports &amp;&amp; shop.availablesports.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >                shop.availablesports = shop.availablesports.map(<span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; {</span>
                     const sport = <span class="cstat-no" title="statement not covered" >item.sport || {};</span>
@@ -829,10 +829,10 @@ const displaydetails = async (req, res) =&gt; {
             }
         });
 &nbsp;
-        const responseData = <span class="cstat-no" title="statement not covered" >{ users, shops, queries };</span>
+        const responseData = { users, shops, queries };
 &nbsp;
-<span class="cstat-no" title="statement not covered" >        await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);</span>
-<span class="cstat-no" title="statement not covered" >        return responseData;</span>
+        await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);
+        return responseData;
 &nbsp;
     } catch (err) {
 <span class="cstat-no" title="statement not covered" >        console.error("❌ Error retrieving data:", err);</span>
@@ -1147,7 +1147,7 @@ exports.logout = <span class="fstat-no" title="function not covered" >as</span>y
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-05T02:24:29.429Z
+                at 2025-05-05T14:00:04.810Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

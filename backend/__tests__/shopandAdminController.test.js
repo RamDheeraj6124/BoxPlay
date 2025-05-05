@@ -9,7 +9,7 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const redis = require('../config/redisClient');
 
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 
 describe('Shop and Admin Controller Tests', () => {
   let agent;

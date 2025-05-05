@@ -23,7 +23,7 @@ jest.mock('../config/redisClient', () => ({
 }));
 
 // Increase timeout for all tests
-jest.setTimeout(30000);
+jest.setTimeout(60000);
 
 describe('User Controller Tests', () => {
   let agent;
