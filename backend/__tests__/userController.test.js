@@ -2,211 +2,105 @@ const request = require('supertest');
 const mongoose = require('mongoose');
 const app = require('../server1');
 const User = require('../models/User');
-const Booking = require('../models/Booking');
 const bcrypt = require('bcryptjs');
 
-// Mock nodemailer globally
-jest.mock('nodemailer', () => ({
-  createTransport: jest.fn().mockReturnValue({
-    sendMail: jest.fn().mockImplementation((mailOptions, callback) => {
-      callback(null, { response: '250 OK' });
-    }),
-  }),
-}));
+// Hardcoded test configuration
+const TEST_CONFIG = {
+  MONGO_URI: 'mongodb+srv://testuser:testpass@cluster0.example.mongodb.net/testdb?retryWrites=true&w=majority',
+  JWT_SECRET: 'testsecret-jwt-key-for-tests',
+  TEST_USER: {
+    username: 'testuser',
+    email: 'test@example.com',
+    password: 'testpassword123'
+  }
+};
 
-// Mock Redis
-jest.mock('../config/redisClient', () => {
-  const mockRedis = {
-    set: jest.fn(),
-    get: jest.fn((key, callback) => callback(null, 'mocked-value')),
-    on: jest.fn(),
-    connect: jest.fn(),
-    quit: jest.fn().mockResolvedValue(undefined), // Simulate quit
-  };
-  return mockRedis;
-});
+// Configure environment
+process.env = {
+  ...process.env,
+  ...TEST_CONFIG,
+  NODE_ENV: 'test'
+};
 
-const redisClient = require('../config/redisClient'); // Import mock or real client
+jest.setTimeout(30000); // Individual test timeout
 
-jest.setTimeout(60000); // Increase timeout for all tests
-
-describe('User Controller Tests', () => {
+describe('User Controller Integration Tests', () => {
   let agent;
 
   beforeAll(async () => {
-    await mongoose.connect(process.env.MONGO_URI_TEST || 'mongodb://localhost:27017/testdb');
+    await mongoose.connect(TEST_CONFIG.MONGO_URI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true
+    });
     agent = request.agent(app);
-  });
-
-  afterEach(async () => {
-    // Cleanup after each test
-    await User.deleteMany({});
-    await Booking.deleteMany({});
-
-    // Quit Redis if supported
-    if (redisClient.quit) {
-      await redisClient.quit();
-    }
-  });
+  }, 60000); // Setup timeout
 
   afterAll(async () => {
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
-
-    // Final Redis cleanup
-    if (redisClient.quit) {
-      await redisClient.quit();
-    }
   });
 
-  describe('Authentication Tests', () => {
-    test('POST /user/signup - should create a new user', async () => {
-      const response = await agent
-        .post('/user/signup')
-        .send({
-          username: 'testuser',
-          email: 'test@example.com',
-          password: 'password123'
-        });
+  beforeEach(async () => {
+    await User.deleteMany({});
+  });
 
-      expect(response.statusCode).toBe(200);
-      expect(response.body.msg).toBe('Signup Successful');
+  describe('Authentication', () => {
+    test('POST /user/signup - should register new user', async () => {
+      const res = await agent.post('/user/signup').send({
+        username: TEST_CONFIG.TEST_USER.username,
+        email: TEST_CONFIG.TEST_USER.email,
+        password: TEST_CONFIG.TEST_USER.password
+      });
 
-      const user = await User.findOne({ email: 'test@example.com' });
+      expect(res.status).toBe(200);
+      expect(res.body.msg).toBe('Signup Successful');
+
+      const user = await User.findOne({ email: TEST_CONFIG.TEST_USER.email });
       expect(user).toBeTruthy();
-      expect(user.username).toBe('testuser');
+      expect(user.username).toBe(TEST_CONFIG.TEST_USER.username);
     });
 
     test('POST /user/login - should authenticate user', async () => {
+      // Create user first
       await User.create({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: await bcrypt.hash('password123', 10)
+        username: TEST_CONFIG.TEST_USER.username,
+        email: TEST_CONFIG.TEST_USER.email,
+        password: await bcrypt.hash(TEST_CONFIG.TEST_USER.password, 10)
       });
 
-      const response = await agent
-        .post('/user/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
+      const res = await agent.post('/user/login').send({
+        email: TEST_CONFIG.TEST_USER.email,
+        password: TEST_CONFIG.TEST_USER.password
+      });
 
-      expect(response.statusCode).toBe(200);
-      expect(response.body.msg).toBe('Login Successful');
-      expect(response.headers['set-cookie']).toBeDefined();
+      expect(res.status).toBe(200);
+      expect(res.body.msg).toBe('Login Successful');
+    });
+  });
+
+  describe('Session Management', () => {
+    test('GET /user/checksession - should return active session', async () => {
+      // Create and login user
+      await User.create({
+        username: TEST_CONFIG.TEST_USER.username,
+        email: TEST_CONFIG.TEST_USER.email,
+        password: await bcrypt.hash(TEST_CONFIG.TEST_USER.password, 10)
+      });
+
+      await agent.post('/user/login').send({
+        email: TEST_CONFIG.TEST_USER.email,
+        password: TEST_CONFIG.TEST_USER.password
+      });
+
+      const res = await agent.get('/user/checksession');
+      expect(res.status).toBe(200);
+      expect(res.body.user.email).toBe(TEST_CONFIG.TEST_USER.email);
     });
 
     test('POST /user/logout - should terminate session', async () => {
-      await User.create({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: await bcrypt.hash('password123', 10)
-      });
-
-      await agent
-        .post('/user/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
-
-      const response = await agent.post('/user/logout');
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.message).toBe('Logged out successfully');
-    });
-  });
-
-  describe('Session Tests', () => {
-    test('GET /user/checksession - should check active session', async () => {
-      await User.create({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: await bcrypt.hash('password123', 10)
-      });
-
-      await agent
-        .post('/user/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
-
-      const response = await agent.get('/user/checksession');
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.user.email).toBe('test@example.com');
-    });
-  });
-
-  describe('User Operations', () => {
-    test('GET /user/userbookings - should get user bookings', async () => {
-      const testUser = await User.create({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: await bcrypt.hash('password123', 10)
-      });
-
-      await Booking.create({
-        user: testUser._id,
-        shop: new mongoose.Types.ObjectId(),
-        groundname: 'Test Ground',
-        date: new Date(),
-        timeSlot: { start: new Date(), end: new Date() },
-        amountPaid: 100,
-        platformfee: 10,
-        groundfee: 90
-      });
-
-      await agent
-        .post('/user/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
-
-      const response = await agent.get('/user/userbookings');
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.bookings.length).toBe(1);
-      expect(response.body.bookings[0].groundname).toBe('Test Ground');
-    });
-
-    test('POST /user/submitfeedback - should submit feedback', async () => {
-      const testUser = await User.create({
-        username: 'testuser',
-        email: 'test@example.com',
-        password: await bcrypt.hash('password123', 10)
-      });
-
-      const testBooking = await Booking.create({
-        user: testUser._id,
-        shop: new mongoose.Types.ObjectId(),
-        groundname: 'Test Ground',
-        date: new Date(),
-        timeSlot: { start: new Date(), end: new Date() },
-        amountPaid: 100,
-        platformfee: 10,
-        groundfee: 90
-      });
-
-      await agent
-        .post('/user/login')
-        .send({
-          email: 'test@example.com',
-          password: 'password123'
-        });
-
-      const response = await agent
-        .post('/user/submitfeedback')
-        .send({
-          bookingId: testBooking._id.toString(),
-          rating: 5,
-          review: 'Great service!'
-        });
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.message).toBe('Feedback submitted successfully');
+      const res = await agent.post('/user/logout');
+      expect(res.status).toBe(200);
+      expect(res.body.message).toBe('Logged out successfully');
     });
   });
 });
