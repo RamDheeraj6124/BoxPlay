@@ -1,8 +1,11 @@
+ShopsportScheme.js
+
+
 const mongoose = require('mongoose');
 
 const shopsportSchema = new mongoose.Schema({
-    sport:{
-      type: mongoose.Schema.Types.ObjectId,
+    sport: {
+        type: mongoose.Schema.Types.ObjectId,
         ref: 'Sport'
     },
     groundname: { 
@@ -18,8 +21,7 @@ const shopsportSchema = new mongoose.Schema({
         default: [0]
     },
     image: {
-        data: Buffer,
-        contentType: String,
+        type: String
     },
     grounddimensions: { 
         length: { type: Number },
@@ -64,5 +66,13 @@ const shopsportSchema = new mongoose.Schema({
         default: false
     } 
 }); 
+
+// Indexes for optimization
+shopsportSchema.index({ sport: 1 }); // Index for sport reference
+shopsportSchema.index({ groundname: 1 }); // Index for ground names
+shopsportSchema.index({ verify: 1 }); // Index for verification status
+shopsportSchema.index({ appliedforverification: 1 }); // Index for applied for verification
+shopsportSchema.index({ 'availability.day': 1 }); // Index for availability by day
+shopsportSchema.index({ 'reviews.rating': 1 }); // Index for review ratings
 
 module.exports = shopsportSchema;

@@ -330,68 +330,94 @@ const redis = require('../config/redisClient'); // Adjust path as needed
 
 exports.loadVenues = async (req, res) => {
   try {
-    const cacheKey = 'venueData';
-
-    // Step 1: Check Redis Cache
-    const cachedData = await redis.get(cacheKey);
-    if (cachedData) {
-      console.log('Serving venues from Redis cache');
-      return res.status(200).json(JSON.parse(cachedData));
-    }
-
-    // Step 2: Fetch from MongoDB
+    // Step 1: Fetch venues from MongoDB
     const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
       .populate("availablesports.sport")
       .exec();
+
     if (!shopsWithVenues || shopsWithVenues.length === 0) {
-      return res.status(404).json({ message: "No verified venues found" });}
+      return res.status(404).json({ message: "No verified venues found" });
+    }
 
-    const venueData = shopsWithVenues
-      .map((shop) => {
-        const verifiedSports = shop.availablesports.filter((sport) => sport.verify);
-        return verifiedSports.map((sport) => {
-          let imageBase64 = "";
-          try {
-            if (sport.image && sport.image.data) {
-              const mimeType = sport.image.contentType || 'image/jpeg';
-              imageBase64 = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
-            }
-          } catch (imageError) {
-            console.error(`Error reading image for ${sport.groundname}:`, imageError);
+    let venueData = [];
+
+    for (const shop of shopsWithVenues) {
+      const verifiedSports = shop.availablesports.filter((sport) => sport.verify);
+
+      for (const sport of verifiedSports) {
+        const venueId = `${shop._id}-${sport._id}`;
+        const cacheKey = `venue:${venueId}`;
+        const cachedValue = await redis.get(cacheKey);
+
+        let useCached = false;
+        let cachedVenue;
+
+        if (cachedValue) {
+          cachedVenue = JSON.parse(cachedValue);
+          const mongoLastModified = sport.updatedAt || sport.lastModified;
+          const cachedLastModified = cachedVenue.lastModified;
+
+          // Use cache only if lastModified matches
+          if (mongoLastModified && cachedLastModified && new Date(mongoLastModified).getTime() === new Date(cachedLastModified).getTime()) {
+            useCached = true;
+            venueData.push(cachedVenue.data);
+            continue;
           }
+        }
 
-          return {
-            name: shop.shopname,
-            address: shop.address,
-            image: imageBase64,
-            groundname: sport.groundname,
-            priceperhour: sport.priceperhour,
-            maxplayers: sport.maxplayers,
-            surfacetype: sport.surfacetype,
-            status: sport.status,
-            sportname: sport.sport?.name,
-            grounddimensions: sport.grounddimensions,
-            availability: sport.availability,
-            facilities: sport.facilities,
-          };
-        });
-      })
-      .flat();
+        // Prepare fresh data if not using cache
+        let imageBase64 = "";
+        try {
+          if (sport.image && sport.image.data) {
+            const mimeType = sport.image.contentType || 'image/jpeg';
+            imageBase64 = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
+          }
+        } catch (imageError) {
+          console.error(`Error reading image for ${sport.groundname}:`, imageError);
+        }
+
+        const freshData = {
+          name: shop.shopname,
+          address: shop.address,
+          image: imageBase64,
+          groundname: sport.groundname,
+          priceperhour: sport.priceperhour,
+          maxplayers: sport.maxplayers,
+          surfacetype: sport.surfacetype,
+          status: sport.status,
+          sportname: sport.sport?.name,
+          grounddimensions: sport.grounddimensions,
+          availability: sport.availability,
+          facilities: sport.facilities,
+        };
+
+        // Save fresh data in Redis with timestamp
+        await redis.set(
+          cacheKey,
+          JSON.stringify({
+            lastModified: sport.updatedAt || sport.lastModified || new Date().toISOString(),
+            data: freshData
+          }),
+          'EX',
+          3600 // 1 hour TTL
+        );
+
+        venueData.push(freshData);
+      }
+    }
 
     if (venueData.length === 0) {
       return res.status(404).json({ message: "No verified venues found" });
     }
 
-    // Step 3: Cache the data in Redis (TTL 1 hour)
-    await redis.set(cacheKey, JSON.stringify(venueData), 'EX', 3600);
-    console.log('📦 Data cached in Redis for 1 hour');
-
     res.status(200).json(venueData);
+
   } catch (error) {
     console.error("❌ Error fetching venues:", error);
     res.status(500).json({ message: "Internal server error" });
   }
 };
+
 
   
 exports.getcitieslist=async(req,res)=>{
