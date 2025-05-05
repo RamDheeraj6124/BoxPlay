@@ -224,7 +224,67 @@ describe('Shop and Admin Controller Tests', () => {
       console.log('✔️ Cached after DB fetch');
     });
   
+    test('should return venues from Redis cache if not stale', async () => {
+      const fakeShopId = new mongoose.Types.ObjectId();
+      const fakeSportId = new mongoose.Types.ObjectId();
     
+      const lastModified = new Date().toISOString();
+      const freshVenue = {
+        name: 'Cached Shop',
+        address: '123 Test St',
+        image: 'data:image/jpeg;base64,fake-image',
+        groundname: 'Cached Ground',
+        priceperhour: 100,
+        maxplayers: 10,
+        surfacetype: 'Grass',
+        sportname: 'Football',
+        grounddimensions: { length: 90, width: 50 },
+        availability: [],
+        facilities: ['Showers'],
+        status: 'Active',
+      };
+    
+      // Store fake cache
+      await redis.set(
+        `venue:${fakeShopId}-${fakeSportId}`,
+        JSON.stringify({ lastModified, data: freshVenue }),
+        'EX',
+        3600
+      );
+    
+      // Mock Shop.find to return one shop with matching availablesports
+      jest.spyOn(Shop, 'find').mockResolvedValue([
+        {
+          _id: fakeShopId,
+          shopname: 'Cached Shop',
+          address: '123 Test St',
+          availablesports: [
+            {
+              _id: fakeSportId,
+              groundname: 'Cached Ground',
+              priceperhour: 100,
+              maxplayers: 10,
+              surfacetype: 'Grass',
+              verify: true,
+              updatedAt: lastModified,
+              sport: { name: 'Football' },
+              grounddimensions: { length: 90, width: 50 },
+              availability: [],
+              facilities: ['Showers'],
+              status: 'Active',
+            },
+          ],
+        },
+      ]);
+    
+      const response = await request(app).get('/shop/loadvenues');
+      expect(response.statusCode).toBe(200);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].groundname).toBe('Cached Ground');
+      console.log('✔️ Served from Redis cache');
+    });
+    
+  
 
     
   

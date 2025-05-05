@@ -275,7 +275,7 @@ exports.applyforverification = async (req, res) => {
     }
   };
   
-/*
+
 exports.loadVenues = async (req, res) => {
     try {
       const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
@@ -313,7 +313,8 @@ exports.loadVenues = async (req, res) => {
           });
         })
         .flat();
-  
+      console.log("Venue Data:", venueData); // Log the venue data for debugging  
+      console.log(venueData);
       if (venueData.length === 0) {
         return res.status(404).json({ message: "No verified venues found" });
       }
@@ -324,8 +325,8 @@ exports.loadVenues = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
-*/
 
+/*
 const redis = require('../config/redisClient'); // Adjust path as needed
 
 exports.loadVenues = async (req, res) => {
@@ -417,6 +418,8 @@ exports.loadVenues = async (req, res) => {
     res.status(500).json({ message: "Internal server error" });
   }
 };
+*/
+
 
 
   

@@ -48,8 +48,6 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true // Adds createdAt and updatedAt
 });
-
-// Indexing fields for optimization
 userSchema.index({ email: 1 });               // Unique user lookup
 userSchema.index({ username: 1 });            // Username-based search
 userSchema.index({ role: 1 });                // Filtering by role

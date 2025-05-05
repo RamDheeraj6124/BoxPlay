@@ -65,12 +65,4 @@ const shopsportSchema = new mongoose.Schema({
     } 
 }); 
 
-// Indexes for optimization
-shopsportSchema.index({ sport: 1 }); // Index for sport reference
-shopsportSchema.index({ groundname: 1 }); // Index for ground names
-shopsportSchema.index({ verify: 1 }); // Index for verification status
-shopsportSchema.index({ appliedforverification: 1 }); // Index for applied for verification
-shopsportSchema.index({ 'availability.day': 1 }); // Index for availability by day
-shopsportSchema.index({ 'reviews.rating': 1 }); // Index for review ratings
-
 module.exports = shopsportSchema;
