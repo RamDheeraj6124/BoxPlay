@@ -1,5 +1,3 @@
-ShopsportScheme.js
-
 
 const mongoose = require('mongoose');
 
