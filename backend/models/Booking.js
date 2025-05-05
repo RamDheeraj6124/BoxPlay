@@ -3,32 +3,37 @@ const mongoose = require('mongoose');
 const bookingSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
+        required: true
     },
     shop: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Shop'
+        ref: 'Shop',
+        required: true
     },
     groundname: {
         type: String,
+        required: true
     },
     date: {
         type: Date,
         required: true
     },
     platformfee: {
-        type: Number
+        type: Number,
+        required: true
     },
     groundfee: {
-        type: Number
+        type: Number,
+        required: true
     },
     timeSlot: {
         start: {
-            type: String,
+            type: Date,
             required: true
         },
         end: {
-            type: String,
+            type: Date,
             required: true
         }
     },
@@ -38,29 +43,36 @@ const bookingSchema = new mongoose.Schema({
     },
     status: {
         type: String,
-        enum: ['Confirmed', 'Cancelled'],
+        enum: ['Pending', 'Confirmed', 'Cancelled'],
         default: 'Pending'
     },
     paymentDate: {
-        type: Date
+        type: Date,
+        default: null
     },
     transactionId: {
-        type: String
+        type: String,
+        default: null
     },
     cancellationReason: {
         type: String,
+        default: null
     },
     cancellationDate: {
-        type: Date
+        type: Date,
+        default: null
     },
     refundAmount: {
         type: Number,
+        default: 0
     },
     checkInTime: {
-        type: Date
+        type: Date,
+        default: null
     },
     checkOutTime: {
-        type: Date
+        type: Date,
+        default: null
     },
     feedback: {
         rating: {
@@ -69,19 +81,21 @@ const bookingSchema = new mongoose.Schema({
             max: 5
         },
         review: {
-            type: String
+            type: String,
+            maxlength: 500
         },
         feedbackDate: {
-            type: Date
+            type: Date,
+            default: null
         }
     }
 }, { timestamps: true });
-
-// Indexes for optimization
 bookingSchema.index({ user: 1 }); // Index for user queries
 bookingSchema.index({ date: 1 }); // Index for date queries
 bookingSchema.index({ platformfee: 1 }); // Index for revenue calculations (platform fee)
 bookingSchema.index({ groundfee: 1 }); // Index for revenue calculations (ground fee
 bookingSchema.index({ 'feedback.rating': 1 }); // Index for feedback rating queries
 bookingSchema.index({ user: 1, date: 1 }); // Composite index for user and date
+
+
 module.exports = mongoose.model('Booking', bookingSchema);
