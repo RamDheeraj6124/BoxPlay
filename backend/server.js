@@ -97,6 +97,7 @@ app.use(morgan('combined', { stream: accessLogStream }));
 const allowedOrigins = [
   'http://localhost:3000',
   'https://boxplay-2.onrender.com',
+  'https://boxplay-backend.onrender.com'
 ];
 
 app.use(cors({
