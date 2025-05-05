@@ -275,7 +275,7 @@ exports.applyforverification = async (req, res) => {
     }
   };
   
-
+/*
 exports.loadVenues = async (req, res) => {
     try {
       const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
@@ -313,8 +313,7 @@ exports.loadVenues = async (req, res) => {
           });
         })
         .flat();
-      console.log("Venue Data:", venueData); // Log the venue data for debugging  
-      console.log(venueData);
+  
       if (venueData.length === 0) {
         return res.status(404).json({ message: "No verified venues found" });
       }
@@ -325,7 +324,7 @@ exports.loadVenues = async (req, res) => {
       res.status(500).json({ message: "Internal server error" });
     }
   };
-
+*/
 /*
 const redis = require('../config/redisClient'); // Adjust path as needed
 
@@ -419,7 +418,70 @@ exports.loadVenues = async (req, res) => {
   }
 };
 */
+const redis = require('../config/redisClient'); // Adjust path as neededconst Shop = require('../models/Shop');
 
+exports.loadVenues = async (req, res) => {
+  try {
+    const cacheKey = 'venueData';
+
+    // Step 1: Check Redis Cache
+    const cachedData = await redis.get(cacheKey);
+    if (cachedData) {
+      console.log('✅ Serving venues from Redis cache');
+      return res.status(200).json(JSON.parse(cachedData));
+    }
+
+    // Step 2: Fetch from MongoDB
+    const shopsWithVenues = await Shop.find({ "availablesports.verify": true })
+      .populate("availablesports.sport")
+      .exec();
+
+    const venueData = shopsWithVenues
+      .map((shop) => {
+        const verifiedSports = shop.availablesports.filter((sport) => sport.verify);
+        return verifiedSports.map((sport) => {
+          let imageBase64 = "";
+          try {
+            if (sport.image && sport.image.data) {
+              const mimeType = sport.image.contentType || 'image/jpeg';
+              imageBase64 = `data:${mimeType};base64,${sport.image.data.toString("base64")}`;
+            }
+          } catch (imageError) {
+            console.error(`Error reading image for ${sport.groundname}:`, imageError);
+          }
+
+          return {
+            name: shop.shopname,
+            address: shop.address,
+            image: imageBase64,
+            groundname: sport.groundname,
+            priceperhour: sport.priceperhour,
+            maxplayers: sport.maxplayers,
+            surfacetype: sport.surfacetype,
+            status: sport.status,
+            sportname: sport.sport?.name,
+            grounddimensions: sport.grounddimensions,
+            availability: sport.availability,
+            facilities: sport.facilities,
+          };
+        });
+      })
+      .flat();
+
+    if (venueData.length === 0) {
+      return res.status(404).json({ message: "No verified venues found" });
+    }
+
+    // Step 3: Cache the data in Redis (TTL 1 hour)
+    await redis.set(cacheKey, JSON.stringify(venueData), 'EX', 3600);
+    console.log('📦 Data cached in Redis for 1 hour');
+
+    res.status(200).json(venueData);
+  } catch (error) {
+    console.error("❌ Error fetching venues:", error);
+    res.status(500).json({ message: "Internal server error" });
+  }
+};
 
 
   
