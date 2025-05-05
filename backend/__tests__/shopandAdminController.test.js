@@ -9,145 +9,272 @@ const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 const redis = require('../config/redisClient');
 
-// Hardcoded test configuration
-const TEST_CONFIG = {
-  MONGO_URI: 'mongodb+srv://testuser:testpass@cluster0.example.mongodb.net/testdb?retryWrites=true&w=majority',
-  REDIS_URL: 'redis://localhost:6379',
-  JWT_SECRET: 'testsecret-jwt-key-for-tests',
-  ADMIN_CREDS: {
-    email: 'admin@test.com',
-    password: 'adminpassword123'
-  },
-  TEST_SHOP: {
-    owner: 'Test Owner',
-    email: 'testshop@example.com',
-    password: 'shopassword123'
-  }
-};
+jest.setTimeout(120000);
 
-// Configure environment
-process.env = {
-  ...process.env,
-  ...TEST_CONFIG,
-  NODE_ENV: 'test'
-};
-
-jest.setTimeout(30000); // Individual test timeout
-
-describe('Shop and Admin Controller Integration Tests', () => {
+describe('Shop and Admin Controller Tests', () => {
+  let agent;
   let adminAgent;
-  let shopAgent;
   let testState;
   let testCity;
   let testSport;
-  let testShop;
 
   beforeAll(async () => {
-    // Connect to databases
-    await mongoose.connect(TEST_CONFIG.MONGO_URI, {
-      useNewUrlParser: true,
-      useUnifiedTopology: true,
-      connectTimeoutMS: 10000
-    });
+    // Connect to the test database
+    await mongoose.connect(process.env.MONGO_URI_TEST || 'mongodb://localhost:27017/testdb');
 
     // Create test agents
+    agent = request.agent(app);
     adminAgent = request.agent(app);
-    shopAgent = request.agent(app);
 
-    // Create test data
+    // Create a test state
     testState = await State.create({ name: 'Test State' });
-    testCity = await City.create({ 
-      name: 'Test City', 
-      state: testState._id 
-    });
+
+    // Create a test city
+    testCity = await City.create({ name: 'Test City', state: testState._id });
+
+    // Create a test sport
     testSport = await Sport.create({
       name: 'Football',
-      description: 'Test football',
-      equipmentRequired: 'Ball, Goals',
-      rules: 'Standard rules'
+      description: 'Team sport played with a ball',
+      equipmentRequired: 'Football, Goalposts',
+      rules: 'Standard football rules',
     });
 
-    // Create admin user
+    // Create an admin user
+    const hashedPassword = await bcrypt.hash('adminpassword', 10);
     await User.create({
       username: 'admin',
-      email: TEST_CONFIG.ADMIN_CREDS.email,
-      password: await bcrypt.hash(TEST_CONFIG.ADMIN_CREDS.password, 10),
-      role: 'admin'
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: 'admin',
     });
-
-    // Login admin
-    await adminAgent.post('/user/login').send({
-      email: TEST_CONFIG.ADMIN_CREDS.email,
-      password: TEST_CONFIG.ADMIN_CREDS.password
-    });
-  }, 60000); // Setup timeout
+  });
 
   afterAll(async () => {
+    // Clean up
     await mongoose.connection.dropDatabase();
     await mongoose.disconnect();
-    await redis.quit();
+    await redis.quit(); // Properly disconnect Redis client
   });
 
   beforeEach(async () => {
+    // Clear data before each test
     await Shop.deleteMany({});
   });
 
   describe('Admin Operations', () => {
-    test('POST /admin/addstate - should create new state', async () => {
-      const res = await adminAgent.post('/admin/addstate').send({
-        name: 'New Test State'
+    test('POST /admin/addstate - should add a state', async () => {
+      const response = await adminAgent.post('/admin/addstate').send({
+        name: 'New State',
       });
-      
-      expect(res.status).toBe(201);
-      expect(res.body.message).toBe('State added successfully');
-      
-      const state = await State.findOne({ name: 'New Test State' });
+
+      expect(response.statusCode).toBe(201);
+      expect(response.body.message).toBe('State added successfully');
+
+      const state = await State.findOne({ name: 'New State' });
       expect(state).toBeTruthy();
     });
-  });
 
-  describe('Shop Operations', () => {
-    test('POST /shop/shopregister - should register new shop', async () => {
-      const res = await shopAgent.post('/shop/shopregister').send({
-        owner: TEST_CONFIG.TEST_SHOP.owner,
-        email: TEST_CONFIG.TEST_SHOP.email,
-        password: TEST_CONFIG.TEST_SHOP.password
+    test('POST /admin/addcity - should add a city to an existing state', async () => {
+      const response = await adminAgent.post('/admin/addcity').send({
+        name: 'New City',
+        stateId: testState._id,
       });
 
-      expect(res.status).toBe(201);
-      expect(res.body.message).toContain('successfully');
+      expect(response.statusCode).toBe(201);
+      expect(response.body.message).toBe('city added successfully');
 
-      const shop = await Shop.findOne({ email: TEST_CONFIG.TEST_SHOP.email });
-      expect(shop).toBeTruthy();
-      expect(shop.owner).toBe(TEST_CONFIG.TEST_SHOP.owner);
+      const city = await City.findOne({ name: 'New City' });
+      expect(city).toBeTruthy();
+      expect(city.state.toString()).toBe(testState._id.toString());
+    });
+
+    test('GET /admin/getstateslist - should fetch the list of states', async () => {
+      const response = await adminAgent.get('/admin/getstateslist');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.states.length).toBeGreaterThan(0);
+    });
+
+    test('GET /admin/getcitieslist - should fetch the list of cities', async () => {
+      const response = await adminAgent.get('/admin/getcitieslist');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.cities.length).toBeGreaterThan(0);
+    });
+
+    test('GET /admin/getsportslist - should fetch the list of sports', async () => {
+      const response = await adminAgent.get('/admin/getsportslist');
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.sportslist.length).toBeGreaterThan(0);
     });
   });
 
-  describe('Redis Caching', () => {
-    test('GET /shop/loadvenues - should cache venues', async () => {
-      // Create verified shop
-      testShop = await Shop.create({
-        owner: 'Cache Owner',
-        email: 'cache@test.com',
-        password: 'cachepass123',
-        shopname: 'Cache Sports',
-        availablesports: [{
-          sport: testSport._id,
-          groundname: 'Cached Ground',
-          verify: true,
-          priceperhour: 100
-        }]
+  describe('Shop Registration and Login', () => {
+    test('POST /shop/shopregister - should register a new shop', async () => {
+      const response = await agent.post('/shop/shopregister').send({
+        owner: 'Test Owner',
+        email: 'testshop@example.com',
+        password: 'password123',
       });
 
-      // First request - should cache
-      const firstCall = await shopAgent.get('/shop/loadvenues');
-      expect(firstCall.status).toBe(200);
-      expect(firstCall.body.length).toBe(1);
+      expect(response.statusCode).toBe(201);
+      expect(response.body.message).toBe('Shop registered successfully');
 
-      // Verify cache
-      const cached = await redis.get('venueData');
-      expect(cached).toBeTruthy();
-      expect(JSON.parse(cached)[0].name).toBe('Cache Sports');
+      const shop = await Shop.findOne({ email: 'testshop@example.com' });
+      expect(shop).toBeTruthy();
+      expect(shop.owner).toBe('Test Owner');
+    });
+
+    test('POST /shop/shoplogin - should log in a shop', async () => {
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await Shop.create({
+        owner: 'Test Owner',
+        email: 'testshop@example.com',
+        password: hashedPassword,
+        city: testCity._id,
+      });
+
+      const response = await agent.post('/shop/shoplogin').send({
+        email: 'testshop@example.com',
+        password: 'password123',
+      });
+
+      expect(response.statusCode).toBe(200);
+      expect(response.body.msg).toBe('Login Successful');
+    });
+  });
+
+  describe('Admin and Shop Session Management', () => {
+    test('GET /admin/checksession - should check admin session', async () => {
+      // Admin login
+      await adminAgent.post('/user/login').send({
+        email: 'admin@example.com',
+        password: 'adminpassword',
+      });
+
+      const response = await adminAgent.get('/admin/checksession');
+      expect(response.statusCode).toBe(200);
+      expect(response.body.message).toBe('Session Exists');
+    });
+
+    test('GET /shop/checkshopsession - should check shop session', async () => {
+      // Create and login a shop
+      const hashedPassword = await bcrypt.hash('password123', 10);
+      await Shop.create({
+        owner: 'Test Owner',
+        email: 'testshop@example.com',
+        password: hashedPassword,
+        city: testCity._id,
+      });
+
+      await agent.post('/shop/shoplogin').send({
+        email: 'testshop@example.com',
+        password: 'password123',
+      });
+
+      const response = await agent.get('/shop/checkshopsession');
+      expect(response.statusCode).toBe(200);
+      expect(response.body.msg).toBe('Shop session exists');
+    });
+    test('should return venues from Redis cache', async () => {
+      // Mock cached data
+      const cachedVenueData = [
+        {
+          name: 'Cached Shop',
+          address: '123 Test St',
+          image: 'data:image/jpeg;base64,cached-image-data',
+          groundname: 'Cached Ground',
+          priceperhour: 100,
+          maxplayers: 10,
+          surfacetype: 'Grass',
+          sportname: 'Football',
+          facilities: ['Showers'],
+        },
+      ];
+      await redis.set('venueData', JSON.stringify(cachedVenueData), 'EX', 3600);
+  
+      const response = await request(app).get('/shop/loadvenues');
+  
+      expect(response.statusCode).toBe(200);
+      expect(response.body).toEqual(cachedVenueData);
+      console.log('✔️ Served from Redis cache');
+    });
+  
+    test('should return venues from MongoDB and cache the result', async () => {
+      await redis.del('venueData');
+      // Create a shop with valid data, including availablesports
+      const testShop = await Shop.create({
+        owner: 'John Doe',
+        email: 'johndoe@example.com',
+        password: 'hashedpassword123',
+        shopname: 'John\'s Sports Center',
+        address: '123 Main Street',
+        city: testCity._id,
+        availablesports: [
+          {
+            sport: testSport._id,
+            groundname: 'Football Arena',
+            priceperhour: 120,
+            maxplayers: [11],
+            grounddimensions: { length: 100, width: 50 },
+            availability: [
+              {
+                day: 'Monday',
+                times: [
+                  { start: '10:00', end: '12:00' },
+                ],
+              },
+            ],
+            facilities: ['Showers', 'Lockers'],
+            surfacetype: 'Grass',
+            status: 'Active',
+            verify: true, // Mark as verified
+          },
+        ],
+      });
+  
+      const response = await request(app).get('/shop/loadvenues');
+  
+      expect(response.statusCode).toBe(200);
+      expect(response.body.length).toBe(1);
+      expect(response.body[0].name).toBe(testShop.shopname);
+      expect(response.body[0].groundname).toBe('Football Arena');
+      expect(response.body[0].priceperhour).toBe(120);
+      expect(response.body[0].sportname).toBe('Football');
+  
+      // Check if the data is cached in Redis
+      const cachedData = await redis.get('venueData');
+      expect(JSON.parse(cachedData).length).toBe(1);
+      expect(JSON.parse(cachedData)[0].name).toBe(testShop.shopname);
+      console.log('✔️ Data fetched from MongoDB and cached in Redis');
+    });
+  
+  
+    test('should return 404 when no verified venues are found', async () => {
+      await redis.del('venueData');
+      // Ensure database is cleared
+      await Shop.deleteMany({});
+  
+      const response = await request(app).get('/shop/loadvenues');
+  
+      expect(response.statusCode).toBe(404);
+      expect(response.body.message).toBe('No verified venues found');
+      console.log('✔️ No venues found case handled correctly');
+    });
+  
+    test('should return 500 on server error', async () => {
+      // Mock an error in the Redis client
+      jest.spyOn(redis, 'get').mockImplementationOnce(() => {
+        throw new Error('Redis error');
+      });
+  
+      const response = await request(app).get('/shop/loadvenues');
+  
+      expect(response.statusCode).toBe(500);
+      expect(response.body.message).toBe('Internal server error');
+      console.log('✔️ Server error handled correctly');
     });
   });
 });
