@@ -19,7 +19,8 @@ const shopsportSchema = new mongoose.Schema({
         default: [0]
     },
     image: {
-        type: String
+        data: Buffer,
+        ContentType: String
     },
     grounddimensions: { 
         length: { type: Number },
