@@ -10,7 +10,7 @@ const fs=require('fs');
 const path=require('path');
 const redis = require('../config/redisClient');
 
-
+/*
 const displaydetails = async (req, res) => {
     try {
         const cacheKey = 'Displayadmin';
@@ -56,6 +56,63 @@ const displaydetails = async (req, res) => {
         return res.status(500).json({ message: "Error retrieving data" });
     }
 };
+*/
+const displaydetails = async (req, res) => {
+    try {
+        const [cachedUsers, cachedShops, cachedQueries] = await Promise.all([
+            redis.get('AdminUsers'),
+            redis.get('AdminShops'),
+            redis.get('AdminQueries'),
+        ]);
+
+        let users = cachedUsers ? JSON.parse(cachedUsers) : null;
+        let shops = cachedShops ? JSON.parse(cachedShops) : null;
+        let queries = cachedQueries ? JSON.parse(cachedQueries) : null;
+
+        if (!users) {
+            users = await User.find().lean();
+            await redis.set('AdminUsers', JSON.stringify(users), 'EX', 3600);
+        }
+
+        if (!shops) {
+            shops = await Shop.find().populate('availablesports.sport').lean();
+
+            shops.forEach((shop) => {
+                if (shop.availablesports && shop.availablesports.length > 0) {
+                    shop.availablesports = shop.availablesports.map((item) => {
+                        const sport = item.sport || {};
+                        try {
+                            if (sport.image && sport.image.data) {
+                                const mimeType = sport.image.contentType || 'image/jpeg';
+                                sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                            } else {
+                                sport.getimage = '';
+                            }
+                        } catch (imageError) {
+                            console.error(`Error processing image for sport:`, imageError);
+                            sport.getimage = '';
+                        }
+                        item.sport = sport;
+                        return item;
+                    });
+                }
+            });
+
+            await redis.set('AdminShops', JSON.stringify(shops), 'EX', 3600);
+        }
+
+        if (!queries) {
+            queries = await Query.find().lean();
+            await redis.set('AdminQueries', JSON.stringify(queries), 'EX', 3600);
+        }
+
+        return res.status(200).json({ users, shops, queries });
+
+    } catch (err) {
+        console.error("❌ Error retrieving data:", err);
+        return res.status(500).json({ message: "Error retrieving data" });
+    }
+};
 
 
 
@@ -80,6 +137,7 @@ exports.checksession = async (req, res, next) => {
 };
 
 // Admin verify route
+/*
 exports.adminverify = async (req, res, next) => {
     const { shopId, gid } = req.body; // gid is the list of sport _id's to verify
 
@@ -104,8 +162,66 @@ exports.adminverify = async (req, res, next) => {
         console.error("Error in adminverify:", error);
         next(error);
     }
+};*/
+exports.adminverify = async (req, res, next) => {
+    const { shopId, gid } = req.body; // gid is the list of sport _id's to verify
+
+    try {
+        const shop = await Shop.findById(shopId).populate('availablesports.sport');
+
+        if (!shop) {
+            return res.status(404).json({ message: 'Shop not found' });
+        }
+
+        // Update verification flags only for selected grounds
+        shop.availablesports.forEach(sport => {
+            if (gid.includes(String(sport._id))) {
+                sport.verify = true;
+                sport.appliedforverification = false;
+            }
+        });
+
+        await shop.save();
+
+        // Process sport images (like in displaydetails)
+        if (shop.availablesports.length > 0) {
+            shop.availablesports = shop.availablesports.map((item) => {
+                const sport = item.sport || {};
+                try {
+                    if (sport.image && sport.image.data) {
+                        const mimeType = sport.image.contentType || 'image/jpeg';
+                        sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                    } else {
+                        sport.getimage = '';
+                    }
+                } catch (imageError) {
+                    console.error("Error processing sport image:", imageError);
+                    sport.getimage = '';
+                }
+                item.sport = sport;
+                return item;
+            });
+        }
+
+        // Update AdminShops Redis cache
+        const cachedShops = await redis.get('AdminShops');
+        if (cachedShops) {
+            let shops = JSON.parse(cachedShops);
+            const shopIndex = shops.findIndex(s => s._id === shopId);
+            if (shopIndex !== -1) {
+                shops[shopIndex].availablesports = shop.availablesports;
+                await redis.set('AdminShops', JSON.stringify(shops), 'EX', 3600);
+            }
+        }
+
+        return res.json(shop);
+    } catch (error) {
+        console.error("Error in adminverify:", error);
+        next(error);
+    }
 };
 
+/*
 exports.admindeleteground = async (req, res, next) => {
     const { shopId, groundName } = req.body;
     try {
@@ -126,7 +242,64 @@ exports.admindeleteground = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};*/
+exports.admindeleteground = async (req, res, next) => {
+    const { shopId, groundName } = req.body;
+
+    try {
+        const shop = await Shop.findById(shopId).populate('availablesports.sport');
+        if (!shop) {
+            return res.status(404).json({ message: 'Shop not found' });
+        }
+
+        const groundIndex = shop.availablesports.findIndex(
+            sport => sport.groundname === groundName
+        );
+        if (groundIndex === -1) {
+            return res.status(404).json({ message: 'Ground not found' });
+        }
+
+        // Remove ground and save shop
+        shop.availablesports.splice(groundIndex, 1);
+        await shop.save();
+
+        // Process images like in displaydetails
+        if (shop.availablesports.length > 0) {
+            shop.availablesports = shop.availablesports.map((item) => {
+                const sport = item.sport || {};
+                try {
+                    if (sport.image && sport.image.data) {
+                        const mimeType = sport.image.contentType || 'image/jpeg';
+                        sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                    } else {
+                        sport.getimage = '';
+                    }
+                } catch (imageError) {
+                    console.error(`Error processing sport image:`, imageError);
+                    sport.getimage = '';
+                }
+                item.sport = sport;
+                return item;
+            });
+        }
+
+        // Update AdminShops cache
+        const cachedShops = await redis.get('AdminShops');
+        if (cachedShops) {
+            let shops = JSON.parse(cachedShops);
+            const shopIndex = shops.findIndex(s => s._id === shopId);
+            if (shopIndex !== -1) {
+                shops[shopIndex].availablesports = shop.availablesports;
+                await redis.set('AdminShops', JSON.stringify(shops), 'EX', 3600);
+            }
+        }
+
+        return res.status(200).json({ message: 'Ground deleted successfully', shop });
+    } catch (error) {
+        next(error);
+    }
 };
+/*
 exports.verifygroundagain = async (req, res, next) => {
     const { shopId, groundName } = req.body;
     try {
@@ -147,8 +320,65 @@ exports.verifygroundagain = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};*/
+exports.verifygroundagain = async (req, res, next) => {
+    const { shopId, groundName } = req.body;
+
+    try {
+        const shop = await Shop.findById(shopId).populate('availablesports.sport');
+        if (!shop) {
+            return res.status(404).json({ message: 'Shop not found' });
+        }
+
+        const groundIndex = shop.availablesports.findIndex(
+            sport => sport.groundname === groundName
+        );
+        if (groundIndex === -1) {
+            return res.status(404).json({ message: 'Ground not found' });
+        }
+
+        // Reset verification
+        shop.availablesports[groundIndex].verify = false;
+        shop.availablesports[groundIndex].appliedforverification = false;
+
+        await shop.save();
+
+        // Process images like in displaydetails
+        shop.availablesports = shop.availablesports.map((item) => {
+            const sport = item.sport || {};
+            try {
+                if (sport.image && sport.image.data) {
+                    const mimeType = sport.image.contentType || 'image/jpeg';
+                    sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                } else {
+                    sport.getimage = '';
+                }
+            } catch (imageError) {
+                console.error(`Error processing sport image:`, imageError);
+                sport.getimage = '';
+            }
+            item.sport = sport;
+            return item;
+        });
+
+        // Update Redis cache
+        const cachedShops = await redis.get('AdminShops');
+        if (cachedShops) {
+            let shops = JSON.parse(cachedShops);
+            const shopIndex = shops.findIndex(s => s._id === shopId);
+            if (shopIndex !== -1) {
+                shops[shopIndex].availablesports = shop.availablesports;
+                await redis.set('AdminShops', JSON.stringify(shops), 'EX', 3600);
+            }
+        }
+
+        return res.status(200).json({ message: 'Ground verification reset successfully', shop });
+    } catch (error) {
+        next(error);
+    }
 };
 
+/*
 exports.admindeleteuser = async (req, res, next) => {
     const { userId } = req.body;
     try {
@@ -157,7 +387,30 @@ exports.admindeleteuser = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+};*/
+exports.admindeleteuser = async (req, res, next) => {
+    const { userId } = req.body;
+
+    try {
+        const deletedUser = await User.findByIdAndDelete(userId);
+        if (!deletedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // Update Redis cache
+        const cachedUsers = await redis.get('AdminUsers');
+        if (cachedUsers) {
+            let users = JSON.parse(cachedUsers);
+            users = users.filter(user => user._id !== userId);
+            await redis.set('AdminUsers', JSON.stringify(users), 'EX', 3600);
+        }
+
+        res.status(200).json({ message: 'Deleted Successfully' });
+    } catch (error) {
+        next(error);
+    }
 };
+
 
 exports.fixpercentage = async (req, res, next) => {
     const { percentage } = req.body;
@@ -187,7 +440,7 @@ exports.getpercentage = async (req, res, next) => {
         next(err);
     }
 };
-
+/*
 exports.checkRevenue = async (req, res, next) => {
     try {
         const bookings = await Booking.find();
@@ -228,6 +481,86 @@ exports.checkRevenue = async (req, res, next) => {
             totalRevenue: totalRevenue,
             shopRevenues: shopRevenues
         });
+    } catch (error) {
+        next(error);
+    }
+};*/
+exports.checkRevenue = async (req, res, next) => {
+    try {
+        let shops;
+
+        // Check Redis cache first
+        const cachedShops = await redis.get('AdminShops');
+        if (cachedShops) {
+            shops = JSON.parse(cachedShops);
+        } else {
+            // Fetch from DB if not cached
+            shops = await Shop.find().populate('availablesports.sport').lean();
+
+            // Handle sport image conversion (like in displaydetails)
+            shops.forEach((shop) => {
+                if (shop.availablesports && shop.availablesports.length > 0) {
+                    shop.availablesports = shop.availablesports.map((item) => {
+                        const sport = item.sport || {};
+                        try {
+                            if (sport.image && sport.image.data) {
+                                const mimeType = sport.image.contentType || 'image/jpeg';
+                                sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                            } else {
+                                sport.getimage = '';
+                            }
+                        } catch (imageError) {
+                            console.error(`Error processing image for sport:`, imageError);
+                            sport.getimage = '';
+                        }
+                        item.sport = sport;
+                        return item;
+                    });
+                }
+            });
+
+            // Cache the result
+            await redis.set('AdminShops', JSON.stringify(shops), 'EX', 3600);
+        }
+
+        const bookings = await Booking.find();
+
+        const shopMap = {};
+        shops.forEach(shop => {
+            shopMap[shop._id] = shop.shopname;
+        });
+
+        const revenueMap = {};
+        let totalRevenue = 0;
+
+        bookings.forEach((booking) => {
+            const shopId = booking.shop;
+            const platformFee = booking.platformfee || 0;
+            totalRevenue += platformFee;
+
+            if (shopId) {
+                if (revenueMap[shopId]) {
+                    revenueMap[shopId].platformFee += platformFee;
+                } else {
+                    revenueMap[shopId] = {
+                        shopName: shopMap[shopId] || "Unknown Shop",
+                        platformFee: platformFee
+                    };
+                }
+            }
+        });
+
+        const shopRevenues = Object.keys(revenueMap).map((shopId) => ({
+            shopId: shopId,
+            shopName: revenueMap[shopId].shopName,
+            platformFee: revenueMap[shopId].platformFee
+        }));
+
+        res.json({
+            totalRevenue: totalRevenue,
+            shopRevenues: shopRevenues
+        });
+
     } catch (error) {
         next(error);
     }
