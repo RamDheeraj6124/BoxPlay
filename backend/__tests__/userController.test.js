@@ -30,8 +30,11 @@ describe('User Controller Tests', () => {
 
   beforeAll(async () => {
     // Connect to test database
-    await mongoose.connect(process.env.MONGO_URI_TEST || 'mongodb://localhost:27017/testdb');
-
+    const uri = 'mongodb+srv://group38:project38@cluster0.jyxib.mongodb.net/boxplay_test?retryWrites=true&w=majority&appName=Cluster0';
+    await mongoose.connect(uri, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    });
     // Create test agent
     agent = request.agent(app);
   });

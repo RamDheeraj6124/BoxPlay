@@ -1,6 +1,5 @@
 const express = require('express');
 const cors = require('cors');
-const dbconnect = require('./config/db');
 const errorHandler = require('./middlewares/errorHandler');
 const userroutes = require('./routes/userroutes');
 const shoproutes = require('./routes/shoproutes');
@@ -10,13 +9,9 @@ const bodyParser = require('body-parser');
 const cookieParser = require('cookie-parser');
 const helmet = require('helmet');
 require('dotenv').config();
-const swaggerJsdoc = require('swagger-jsdoc');
-const swaggerUi = require('swagger-ui-express');
 const morgan = require('morgan');
-const path = require('path');
 const MongoStore = require('connect-mongo');
-const rfs = require('rotating-file-stream');
-const redis = require('./config/redisClient');
+
 
 const app = express();
 
@@ -24,9 +19,6 @@ const app = express();
 const isTestEnv = process.env.NODE_ENV === 'test';
 
 app.set('trust proxy', 1);
-
-
-
 // Middleware setup
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));

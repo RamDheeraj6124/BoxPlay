@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1746465252181" clover="3.2.0">
-  <project timestamp="1746465252181" name="All files">
-    <metrics statements="778" coveredstatements="343" conditionals="249" coveredconditionals="55" methods="85" coveredmethods="28" elements="1112" coveredelements="426" complexity="0" loc="778" ncloc="778" packages="6" files="18" classes="18"/>
+<coverage generated="1746467937863" clover="3.2.0">
+  <project timestamp="1746467937863" name="All files">
+    <metrics statements="763" coveredstatements="341" conditionals="249" coveredconditionals="58" methods="84" coveredmethods="29" elements="1096" coveredelements="428" complexity="0" loc="763" ncloc="763" packages="6" files="17" classes="17"/>
     <package name="backend">
-      <metrics statements="38" coveredstatements="37" conditionals="10" coveredconditionals="6" methods="1" coveredmethods="1"/>
+      <metrics statements="32" coveredstatements="31" conditionals="10" coveredconditionals="6" methods="1" coveredmethods="1"/>
       <file name="server1.js" path="C:\Users\91961\Desktop\Group38_FDFED_PROJECT\fedproject\backend\server1.js">
-        <metrics statements="38" coveredstatements="37" conditionals="10" coveredconditionals="6" methods="1" coveredmethods="1"/>
+        <metrics statements="32" coveredstatements="31" conditionals="10" coveredconditionals="6" methods="1" coveredmethods="1"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
@@ -19,47 +19,29 @@
         <line num="11" count="2" type="stmt"/>
         <line num="12" count="2" type="stmt"/>
         <line num="13" count="2" type="stmt"/>
-        <line num="14" count="2" type="stmt"/>
-        <line num="15" count="2" type="stmt"/>
         <line num="16" count="2" type="stmt"/>
-        <line num="17" count="2" type="stmt"/>
-        <line num="18" count="2" type="stmt"/>
         <line num="19" count="2" type="stmt"/>
         <line num="21" count="2" type="stmt"/>
+        <line num="23" count="2" type="stmt"/>
         <line num="24" count="2" type="stmt"/>
-        <line num="26" count="2" type="stmt"/>
-        <line num="31" count="2" type="stmt"/>
-        <line num="32" count="2" type="stmt"/>
-        <line num="33" count="2" type="stmt"/>
-        <line num="36" count="2" type="stmt"/>
+        <line num="25" count="2" type="stmt"/>
+        <line num="28" count="2" type="stmt"/>
+        <line num="41" count="2" type="stmt"/>
+        <line num="44" count="2" type="stmt"/>
         <line num="49" count="2" type="stmt"/>
-        <line num="52" count="2" type="stmt"/>
-        <line num="57" count="2" type="stmt"/>
-        <line num="59" count="25" type="cond" truecount="2" falsecount="2"/>
-        <line num="60" count="25" type="stmt"/>
-        <line num="62" count="0" type="stmt"/>
-        <line num="70" count="2" type="stmt"/>
+        <line num="51" count="25" type="cond" truecount="2" falsecount="2"/>
+        <line num="52" count="25" type="stmt"/>
+        <line num="54" count="0" type="stmt"/>
+        <line num="62" count="2" type="stmt"/>
+        <line num="76" count="2" type="stmt"/>
+        <line num="77" count="2" type="stmt"/>
+        <line num="78" count="2" type="stmt"/>
+        <line num="81" count="2" type="stmt"/>
         <line num="84" count="2" type="stmt"/>
-        <line num="85" count="2" type="stmt"/>
-        <line num="86" count="2" type="stmt"/>
-        <line num="89" count="2" type="stmt"/>
-        <line num="92" count="2" type="stmt"/>
       </file>
     </package>
     <package name="backend.config">
-      <metrics statements="18" coveredstatements="12" conditionals="6" coveredconditionals="3" methods="3" coveredmethods="1"/>
-      <file name="db.js" path="C:\Users\91961\Desktop\Group38_FDFED_PROJECT\fedproject\backend\config\db.js">
-        <metrics statements="9" coveredstatements="4" conditionals="0" coveredconditionals="0" methods="1" coveredmethods="0"/>
-        <line num="1" count="2" type="stmt"/>
-        <line num="2" count="2" type="stmt"/>
-        <line num="4" count="2" type="stmt"/>
-        <line num="5" count="0" type="stmt"/>
-        <line num="6" count="0" type="stmt"/>
-        <line num="10" count="0" type="stmt"/>
-        <line num="12" count="0" type="stmt"/>
-        <line num="13" count="0" type="stmt"/>
-        <line num="17" count="2" type="stmt"/>
-      </file>
+      <metrics statements="9" coveredstatements="8" conditionals="6" coveredconditionals="3" methods="2" coveredmethods="1"/>
       <file name="redisClient.js" path="C:\Users\91961\Desktop\Group38_FDFED_PROJECT\fedproject\backend\config\redisClient.js">
         <metrics statements="9" coveredstatements="8" conditionals="6" coveredconditionals="3" methods="2" coveredmethods="1"/>
         <line num="1" count="1" type="stmt"/>
@@ -74,9 +56,9 @@
       </file>
     </package>
     <package name="backend.controllers">
-      <metrics statements="629" coveredstatements="208" conditionals="229" coveredconditionals="46" methods="79" coveredmethods="26"/>
+      <metrics statements="629" coveredstatements="216" conditionals="229" coveredconditionals="49" methods="79" coveredmethods="27"/>
       <file name="admincontroller.js" path="C:\Users\91961\Desktop\Group38_FDFED_PROJECT\fedproject\backend\controllers\admincontroller.js">
-        <metrics statements="196" coveredstatements="66" conditionals="57" coveredconditionals="7" methods="26" coveredmethods="7"/>
+        <metrics statements="196" coveredstatements="71" conditionals="57" coveredconditionals="7" methods="26" coveredmethods="7"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
@@ -93,12 +75,12 @@
         <line num="16" count="1" type="stmt"/>
         <line num="17" count="1" type="stmt"/>
         <line num="19" count="1" type="cond" truecount="1" falsecount="1"/>
-        <line num="20" count="1" type="stmt"/>
-        <line num="21" count="1" type="stmt"/>
-        <line num="24" count="0" type="stmt"/>
-        <line num="25" count="0" type="stmt"/>
-        <line num="26" count="0" type="stmt"/>
-        <line num="28" count="0" type="stmt"/>
+        <line num="20" count="0" type="stmt"/>
+        <line num="21" count="0" type="stmt"/>
+        <line num="24" count="1" type="stmt"/>
+        <line num="25" count="1" type="stmt"/>
+        <line num="26" count="1" type="stmt"/>
+        <line num="28" count="1" type="stmt"/>
         <line num="29" count="0" type="cond" truecount="0" falsecount="4"/>
         <line num="30" count="0" type="stmt"/>
         <line num="31" count="0" type="cond" truecount="0" falsecount="2"/>
@@ -111,9 +93,9 @@
         <line num="41" count="0" type="stmt"/>
         <line num="43" count="0" type="stmt"/>
         <line num="44" count="0" type="stmt"/>
-        <line num="49" count="0" type="stmt"/>
-        <line num="51" count="0" type="stmt"/>
-        <line num="52" count="0" type="stmt"/>
+        <line num="49" count="1" type="stmt"/>
+        <line num="51" count="1" type="stmt"/>
+        <line num="52" count="1" type="stmt"/>
         <line num="55" count="0" type="stmt"/>
         <line num="56" count="0" type="stmt"/>
         <line num="63" count="2" type="stmt"/>
@@ -275,7 +257,7 @@
         <line num="357" count="0" type="stmt"/>
       </file>
       <file name="shopcontroller.js" path="C:\Users\91961\Desktop\Group38_FDFED_PROJECT\fedproject\backend\controllers\shopcontroller.js">
-        <metrics statements="264" coveredstatements="74" conditionals="116" coveredconditionals="22" methods="37" coveredmethods="9"/>
+        <metrics statements="264" coveredstatements="77" conditionals="116" coveredconditionals="25" methods="37" coveredmethods="10"/>
         <line num="1" count="2" type="stmt"/>
         <line num="2" count="2" type="stmt"/>
         <line num="3" count="2" type="stmt"/>
@@ -289,10 +271,10 @@
         <line num="14" count="0" type="stmt"/>
         <line num="18" count="1" type="stmt"/>
         <line num="19" count="1" type="stmt"/>
-        <line num="20" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="20" count="1" type="cond" truecount="1" falsecount="1"/>
         <line num="21" count="0" type="stmt"/>
-        <line num="23" count="0" type="stmt"/>
-        <line num="27" count="0" type="cond" truecount="0" falsecount="2"/>
+        <line num="23" count="1" type="stmt"/>
+        <line num="27" count="1" type="cond" truecount="2" falsecount="0"/>
         <line num="29" count="0" type="stmt"/>
         <line num="30" count="0" type="stmt"/>
         <line num="34" count="2" type="stmt"/>
