@@ -19,6 +19,7 @@ jobs:
     env:
       NODE_ENV: test
       MONGO_URL: mongodb://localhost:27017/testdb
+      PORT: 3000 # Ensure PORT is set
 
     steps:
       - name: Checkout code
@@ -42,15 +43,15 @@ jobs:
         run: npm ci
 
       - name: Debug List all files in backend
-        run: ls -R
+        run: ls -R backend
 
       - name: Debug List files in __tests__ directory
-        run: ls -R __tests__
+        run: ls -R backend/__tests__
 
       - name: Run Jest tests (Verbose)
         run: npm test -- --detectOpenHandles --forceExit --coverage --verbose
         env:
-          JEST_JUNIT_OUTPUT: test-results/jest/results.xml
+          JEST_JUNIT_OUTPUT: backend/test-results/jest/results.xml
 
       - name: Upload test results
         uses: actions/upload-artifact@v3
