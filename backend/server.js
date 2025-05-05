@@ -64,7 +64,7 @@ const swaggerOptions = {
       description: 'API docs for your Node.js application',
     },
     servers: [
-      { url: 'https://boxplay-2.onrender.com' },
+      { url: 'https://boxplay-backend.onrender.com' },
       { url: 'http://localhost:3000' },
     ],
     components: {

@@ -41,10 +41,10 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Debug: List all files in backend
+      - name: Debug List all files in backend
         run: ls -R
 
-      - name: Debug: List files in __tests__ directory
+      - name: Debug List files in __tests__ directory
         run: ls -R __tests__
 
       - name: Run Jest tests (Verbose)
