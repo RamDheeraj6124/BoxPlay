@@ -16,7 +16,7 @@ const displaydetails = async (req, res) => {
 
 
         const users = await User.find().lean();
-        const shops = await Shop.find().populate('availablesports.sport').lean(); 
+        let shops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find().lean();
 
         shops=shops.forEach((shop) => {
