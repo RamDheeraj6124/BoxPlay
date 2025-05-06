@@ -19,7 +19,7 @@ const displaydetails = async (req, res) => {
         const shops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find().lean();
 
-        const loadshops=shops.forEach((shop) => {
+        shops=shops.forEach((shop) => {
             if (shop.availablesports && shop.availablesports.length > 0) {
                 shop.availablesports = shop.availablesports.map((item) => {
                     const sport = item.sport || {};
