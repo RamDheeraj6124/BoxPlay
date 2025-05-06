@@ -16,10 +16,10 @@ const displaydetails = async (req, res) => {
 
 
         const users = await User.find().lean();
-        let shops = await Shop.find().populate('availablesports.sport').lean(); 
+        const fetchshops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find().lean();
 
-        shops=shops.forEach((shop) => {
+        const shops=fetchshops.forEach((shop) => {
             if (shop.availablesports && shop.availablesports.length > 0) {
                 shop.availablesports = shop.availablesports.map((item) => {
                     const sport = item.sport || {};
