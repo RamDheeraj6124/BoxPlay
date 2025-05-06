@@ -173,7 +173,7 @@ exports.signup = async (req, res) => {
     console.log(req.body);
     try {
         if(await validateEmailDomain(email)){
-        let user = await User.findOne({ email });
+        let user = await User.findOne({ email }).select('_id').exec();
         if (user) return res.status(400).json({ msg: 'User already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);

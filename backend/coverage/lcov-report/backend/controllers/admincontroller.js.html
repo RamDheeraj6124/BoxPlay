@@ -23,9 +23,9 @@
         <div class='clearfix'>
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">34.71% </span>
+                <span class="strong">32.98% </span>
                 <span class="quiet">Statements</span>
-                <span class='fraction'>67/193</span>
+                <span class='fraction'>63/191</span>
             </div>
         
             
@@ -44,9 +44,9 @@
         
             
             <div class='fl pad1y space-right2'>
-                <span class="strong">35.26% </span>
+                <span class="strong">33.51% </span>
                 <span class="quiet">Lines</span>
-                <span class='fraction'>67/190</span>
+                <span class='fraction'>63/188</span>
             </div>
         
             
@@ -414,24 +414,16 @@
 <a name='L349'></a><a href='#L349'>349</a>
 <a name='L350'></a><a href='#L350'>350</a>
 <a name='L351'></a><a href='#L351'>351</a>
-<a name='L352'></a><a href='#L352'>352</a>
-<a name='L353'></a><a href='#L353'>353</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
+<a name='L352'></a><a href='#L352'>352</a></td><td class="line-coverage quiet"><span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-yes">2x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-yes">1x</span>
@@ -440,6 +432,8 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -450,6 +444,7 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -458,12 +453,10 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-yes">1x</span>
-<span class="cline-any cline-yes">1x</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
@@ -488,11 +481,16 @@
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-yes">2x</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
+<span class="cline-any cline-no">&nbsp;</span>
+<span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-no">&nbsp;</span>
@@ -767,23 +765,16 @@
 <span class="cline-any cline-no">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
 <span class="cline-any cline-neutral">&nbsp;</span>
-<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const express = require('express'); 
-const User = require('../models/User');
+<span class="cline-any cline-neutral">&nbsp;</span></td><td class="text"><pre class="prettyprint lang-js">const User = require('../models/User');
 const Shop = require('../models/Shop');
 const Booking = require('../models/Booking');
 const Sport = require('../models/Sport');
 const Query = require('../models/Query');
 const State = require('../models/State');
 const City= require('../models/City');
-const fs=require('fs');
-const path=require('path');
-const redis = require('../config/redisClient');
-&nbsp;
 &nbsp;
 const displaydetails = async (req, res) =&gt; {
     try {
-&nbsp;
-&nbsp;
         const users = await User.find().lean();
         const shops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find().lean();
@@ -792,32 +783,33 @@ const displaydetails = async (req, res) =&gt; {
 <span class="cstat-no" title="statement not covered" >            if (shop.availablesports &amp;&amp; shop.availablesports.length &gt; 0) {</span>
 <span class="cstat-no" title="statement not covered" >                shop.availablesports = shop.availablesports.map(<span class="fstat-no" title="function not covered" >(i</span>tem) =&gt; {</span>
                     const sport = <span class="cstat-no" title="statement not covered" >item.sport || {};</span>
+                    
+                    // Process the image for each available sport
 <span class="cstat-no" title="statement not covered" >                    try {</span>
-<span class="cstat-no" title="statement not covered" >                        if (sport.image &amp;&amp; sport.image.data) {</span>
-                            const mimeType = <span class="cstat-no" title="statement not covered" >sport.image.contentType || 'image/jpeg';</span>
-<span class="cstat-no" title="statement not covered" >                            sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;</span>
+<span class="cstat-no" title="statement not covered" >                        if (item.image &amp;&amp; item.image.data) {  // Note: accessing item.image, not sport.image</span>
+                            const mimeType = <span class="cstat-no" title="statement not covered" >item.image.ContentType || 'image/jpeg';</span>  // Note: Capital 'C' in ContentType
+<span class="cstat-no" title="statement not covered" >                            item.getimage = `data:${mimeType};base64,${item.image.data.toString('base64')}`;</span>
                         } else {
-<span class="cstat-no" title="statement not covered" >                            sport.getimage = '';</span>
+<span class="cstat-no" title="statement not covered" >                            item.getimage = '';</span>
                         }
                     } catch (imageError) {
-<span class="cstat-no" title="statement not covered" >                        console.error(`Error processing image for sport:`, imageError);</span>
-<span class="cstat-no" title="statement not covered" >                        sport.getimage = '';</span>
+<span class="cstat-no" title="statement not covered" >                        console.error(`Error processing image for sport ground:`, imageError);</span>
+<span class="cstat-no" title="statement not covered" >                        item.getimage = '';</span>
                     }
+                    
 <span class="cstat-no" title="statement not covered" >                    item.sport = sport;</span>
 <span class="cstat-no" title="statement not covered" >                    return item;</span>
                 });
             }
         });
 &nbsp;
-        const responseData = { users, shops, queries };
-        return responseData;
+        return { users, shops, queries };
 &nbsp;
     } catch (err) {
 <span class="cstat-no" title="statement not covered" >        console.error("❌ Error retrieving data:", err);</span>
 <span class="cstat-no" title="statement not covered" >        return res.status(500).json({ message: "Error retrieving data" });</span>
     }
 };
-&nbsp;
 &nbsp;
 &nbsp;
 // Admin check session
@@ -840,11 +832,16 @@ exports.checksession = async (req, res, next) =&gt; {
     }
 };
 &nbsp;
-&nbsp;
+const redis = require('../config/redisClient'); 
 exports.adminverify = <span class="fstat-no" title="function not covered" >as</span>ync (req, res, next) =&gt; {
     const { shopId, gid } = <span class="cstat-no" title="statement not covered" >req.body;</span> // gid is the list of sport _id's to verify
 &nbsp;
 <span class="cstat-no" title="statement not covered" >    try {</span>
+        const cacheKey = <span class="cstat-no" title="statement not covered" >'venueData';</span>
+&nbsp;
+         // Delete the cached value
+<span class="cstat-no" title="statement not covered" >        await redis.del(cacheKey);</span>
+&nbsp;
         const shop = <span class="cstat-no" title="statement not covered" >await Shop.findById(shopId);</span>
 &nbsp;
 <span class="cstat-no" title="statement not covered" >        if (!shop) {</span>
@@ -1126,7 +1123,7 @@ exports.logout = <span class="fstat-no" title="function not covered" >as</span>y
             <div class='footer quiet pad2 space-top1 center small'>
                 Code coverage generated by
                 <a href="https://istanbul.js.org/" target="_blank" rel="noopener noreferrer">istanbul</a>
-                at 2025-05-06T02:53:28.135Z
+                at 2025-05-06T10:40:53.522Z
             </div>
         <script src="../../prettify.js"></script>
         <script>

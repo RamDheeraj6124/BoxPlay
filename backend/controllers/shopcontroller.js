@@ -37,7 +37,7 @@ exports.registershop = async (req, res) => {
   try {
     // Check if the shop email already exists
     if(validateEmailDomain(email)){
-    const existingShop = await Shop.findOne({ email });
+    const existingShop = await Shop.findOne({ email }).select('_id').lean().exec();
     if (existingShop) {
       return res.status(400).json({ message: 'Shop with this email already exists.' });
     }
@@ -545,7 +545,7 @@ exports.loadGround = async (req, res) => {
     }
   };
   
-exports.bookground = async (req, res) => {
+  exports.bookground = async (req, res) => {
     const {  shopname, groundname, date, timeSlot,groundfee,platformfee, amountPaid } = req.body;
     console.log(shopname+ groundname+ date+ timeSlot+ amountPaid )
     // Validation
