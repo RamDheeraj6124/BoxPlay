@@ -10,41 +10,41 @@ const fs=require('fs');
 const path=require('path');
 const redis = require('../config/redisClient');
 
-const getDisplayDetails = async () => {
-    const users = await User.find().lean();
-    const fetchshops = await Shop.find().populate('availablesports.sport').lean(); 
-    const queries = await Query.find().lean();
-
-    const shops = fetchshops.map((shop) => {
-        if (shop.availablesports && shop.availablesports.length > 0) {
-            shop.availablesports = shop.availablesports.map((item) => {
-                const sport = item.sport || {};
-                try {
-                    if (sport.image && sport.image.data) {
-                        const mimeType = sport.image.contentType || 'image/jpeg';
-                        sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
-                    } else {
-                        sport.getimage = '';
-                    }
-                } catch (imageError) {
-                    console.error(`Error processing image for sport:`, imageError);
-                    sport.getimage = '';
-                }
-                item.sport = sport;
-                return item;
-            });
-        }
-        return shop;
-    });
-
-    return { users, shops, queries };
-};
-
 
 const displaydetails = async (req, res) => {
     try {
-        const responseData = await getDisplayDetails();
-        return res.status(200).json(responseData);
+
+
+        const users = await User.find().lean();
+        const shops = await Shop.find().populate('availablesports.sport').lean(); 
+        const queries = await Query.find().lean();
+
+        shops.forEach((shop) => {
+            if (shop.availablesports && shop.availablesports.length > 0) {
+                shop.availablesports = shop.availablesports.map((item) => {
+                    const sport = item.sport || {};
+                    try {
+                        if (sport.image && sport.image.data) {
+                            const mimeType = sport.image.contentType || 'image/jpeg';
+                            sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                        } else {
+                            sport.getimage = '';
+                        }
+                    } catch (imageError) {
+                        console.error(`Error processing image for sport:`, imageError);
+                        sport.getimage = '';
+                    }
+                    item.sport = sport;
+                    return item;
+                });
+            }
+        });
+
+        const responseData = { users, shops, queries };
+
+        await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);
+        return responseData;
+
     } catch (err) {
         console.error("❌ Error retrieving data:", err);
         return res.status(500).json({ message: "Error retrieving data" });
@@ -52,12 +52,13 @@ const displaydetails = async (req, res) => {
 };
 
 
+
 // Admin check session
 exports.checksession = async (req, res, next) => {
     if (req.session.user && req.session.user.role === "admin") {
         try {
             const admin = await User.findById(req.session.user._id);
-            const details = await displaydetails(); // ✅ Now calling the right function
+            const details = await displaydetails();
             res.status(200).json({
                 message: "Session Exists",
                 username: req.session.user.username,
@@ -71,7 +72,6 @@ exports.checksession = async (req, res, next) => {
         res.status(401).json({ message: "Unauthorized" });
     }
 };
-
 
 
 exports.adminverify = async (req, res, next) => {
