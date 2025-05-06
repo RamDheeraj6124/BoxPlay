@@ -40,7 +40,7 @@ const displaydetails = async (req, res) => {
             }
         });
 
-        const responseData = { users, loadshops, queries };
+        const responseData = { users, shops, queries };
         return responseData;
 
     } catch (err) {
