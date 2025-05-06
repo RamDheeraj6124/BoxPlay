@@ -65,11 +65,16 @@ exports.checksession = async (req, res, next) => {
     }
 };
 
-
+const redis = require('../config/redisClient'); 
 exports.adminverify = async (req, res, next) => {
     const { shopId, gid } = req.body; // gid is the list of sport _id's to verify
 
     try {
+        const cacheKey = 'venueData';
+
+         // Delete the cached value
+        await redis.del(cacheKey);
+
         const shop = await Shop.findById(shopId);
 
         if (!shop) {

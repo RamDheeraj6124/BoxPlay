@@ -167,12 +167,13 @@ exports.resetPassword = async (req, res) => {
 };
 
 // Signup Controller
+//query optimization
 exports.signup = async (req, res) => {
     const { username, email, password } = req.body;
     console.log(req.body);
     try {
         if(await validateEmailDomain(email)){
-        let user = await User.findOne({ email }).exec();
+        let user = await User.findOne({ email }).select('_id').lean().exec();
         if (user) return res.status(400).json({ msg: 'User already exists' });
 
         const hashedPassword = await bcrypt.hash(password, 10);

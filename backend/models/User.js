@@ -48,11 +48,13 @@ const userSchema = new mongoose.Schema({
 }, {
     timestamps: true // Adds createdAt and updatedAt
 });
+/*
 userSchema.index({ email: 1 });               // Unique user lookup
 userSchema.index({ username: 1 });            // Username-based search
 userSchema.index({ role: 1 });                // Filtering by role
 userSchema.index({ revenuepercentage: -1 });  // Sort/filter by revenue share (admin)
 userSchema.index({ totalrevenue: -1 });       // Sort by top earners (admin)
+*/
 
 // Create and export the User model
 module.exports = mongoose.model('User', userSchema);

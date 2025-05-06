@@ -90,5 +90,13 @@ const bookingSchema = new mongoose.Schema({
         }
     }
 }, { timestamps: true });
-
+/*
+// Indexes for optimization
+bookingSchema.index({ user: 1 }); // Index for user queries
+bookingSchema.index({ date: 1 }); // Index for date queries
+bookingSchema.index({ platformfee: 1 }); // Index for revenue calculations (platform fee)
+bookingSchema.index({ groundfee: 1 }); // Index for revenue calculations (ground fee
+bookingSchema.index({ 'feedback.rating': 1 }); // Index for feedback rating queries
+bookingSchema.index({ user: 1, date: 1 }); // Composite index for user and date
+*/
 module.exports = mongoose.model('Booking', bookingSchema);
