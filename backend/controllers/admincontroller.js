@@ -10,16 +10,13 @@ const fs=require('fs');
 const path=require('path');
 const redis = require('../config/redisClient');
 
-
 const displaydetails = async (req, res) => {
     try {
-
-
         const users = await User.find().lean();
         const fetchshops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find().lean();
 
-        const shops=fetchshops.forEach((shop) => {
+        const shops = fetchshops.map((shop) => {
             if (shop.availablesports && shop.availablesports.length > 0) {
                 shop.availablesports = shop.availablesports.map((item) => {
                     const sport = item.sport || {};
@@ -38,16 +35,17 @@ const displaydetails = async (req, res) => {
                     return item;
                 });
             }
+            return shop;
         });
 
         const responseData = { users, shops, queries };
-        return responseData;
-
+        return res.status(200).json(responseData);
     } catch (err) {
         console.error("❌ Error retrieving data:", err);
         return res.status(500).json({ message: "Error retrieving data" });
     }
 };
+
 
 
 
