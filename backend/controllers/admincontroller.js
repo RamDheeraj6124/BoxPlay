@@ -57,7 +57,7 @@ exports.checksession = async (req, res, next) => {
     if (req.session.user && req.session.user.role === "admin") {
         try {
             const admin = await User.findById(req.session.user._id);
-            const details = await getDisplayDetails(); // ✅ Now calling the right function
+            const details = await displaydetails(); // ✅ Now calling the right function
             res.status(200).json({
                 message: "Session Exists",
                 username: req.session.user.username,
