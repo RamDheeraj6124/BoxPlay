@@ -13,8 +13,6 @@ const redis = require('../config/redisClient');
 
 const displaydetails = async (req, res) => {
     try {
-
-
         const users = await User.find().lean();
         const shops = await Shop.find().populate('availablesports.sport').lean(); 
         const queries = await Query.find().lean();
@@ -23,17 +21,20 @@ const displaydetails = async (req, res) => {
             if (shop.availablesports && shop.availablesports.length > 0) {
                 shop.availablesports = shop.availablesports.map((item) => {
                     const sport = item.sport || {};
+                    
+                    // Process the image for each available sport
                     try {
-                        if (sport.image && sport.image.data) {
-                            const mimeType = sport.image.contentType || 'image/jpeg';
-                            sport.getimage = `data:${mimeType};base64,${sport.image.data.toString('base64')}`;
+                        if (item.image && item.image.data) {  // Note: accessing item.image, not sport.image
+                            const mimeType = item.image.ContentType || 'image/jpeg';  // Note: Capital 'C' in ContentType
+                            item.getimage = `data:${mimeType};base64,${item.image.data.toString('base64')}`;
                         } else {
-                            sport.getimage = '';
+                            item.getimage = '';
                         }
                     } catch (imageError) {
-                        console.error(`Error processing image for sport:`, imageError);
-                        sport.getimage = '';
+                        console.error(`Error processing image for sport ground:`, imageError);
+                        item.getimage = '';
                     }
+                    
                     item.sport = sport;
                     return item;
                 });
@@ -47,7 +48,6 @@ const displaydetails = async (req, res) => {
         return res.status(500).json({ message: "Error retrieving data" });
     }
 };
-
 
 
 // Admin check session
