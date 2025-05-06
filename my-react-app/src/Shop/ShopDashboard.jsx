@@ -15,6 +15,7 @@ const ShopDashboard = () => {
   const [groundRevenue, setGroundRevenue] = useState([]);
   const navigate = useNavigate();
   const [sportlist, getSportsList] = useState([]);
+  const effectRan1 = useRef(false);
   const [city, setCity] = useState([]);
   const [cities, setCities] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -140,9 +141,12 @@ const updatesubmit = async (e) => {
 
   const handleDaysPerWeekChange = (e) => {
     let value = parseInt(e.target.value, 10);
-    if (isNaN(value) || value < 0) value = 0;
-    if (value > 7) value = 7;
-
+    if (isNaN(value) || value < 0) {
+      value = 0;
+    }
+    if (value > 7) {
+      value = 7;
+    }
     setDaysPerWeek(value);
     setDaysArray(Array(value).fill(''));
     setTimesArray(Array(value).fill({ start: '', end: '' }));
@@ -160,17 +164,14 @@ const updatesubmit = async (e) => {
     setTimesArray(updatedTimes);
   };
 
-  const generateDayOptions = (selectedDays) => {
-    const allDays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    return allDays
-      .filter((day) => !selectedDays.includes(day)) // Exclude already selected days
-      .map((day, index) => (
-        <option key={index} value={day}>
-          {day}
-        </option>
-      ));
+  const generateDayOptions = () => {
+    const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return days.map((day, index) => (
+      <option key={index} value={day}>
+        {day}
+      </option>
+    ));
   };
-
   const addGround = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -437,7 +438,7 @@ const updatesubmit = async (e) => {
       required
     >
       <option value="" disabled>Select Day</option>
-      {generateDayOptions(daysArray)}
+      {generateDayOptions()}
     </select>
     
     <label className="sd-label" htmlFor={`start-time-${index}`}>Start Time:</label>
