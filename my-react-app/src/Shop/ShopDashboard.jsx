@@ -164,14 +164,17 @@ const updatesubmit = async (e) => {
     setTimesArray(updatedTimes);
   };
 
-  const generateDayOptions = () => {
+  const generateDayOptions = (selectedDays) => {
     const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    return days.map((day, index) => (
-      <option key={index} value={day}>
-        {day}
-      </option>
-    ));
+    return days
+      .filter(day => !selectedDays.includes(day))
+      .map((day, index) => (
+        <option key={index} value={day}>
+          {day}
+        </option>
+      ));
   };
+
   const addGround = async (e) => {
     e.preventDefault();
     const form = e.target;
@@ -438,7 +441,7 @@ const updatesubmit = async (e) => {
       required
     >
       <option value="" disabled>Select Day</option>
-      {generateDayOptions()}
+      {generateDayOptions(daysArray)}
     </select>
     
     <label className="sd-label" htmlFor={`start-time-${index}`}>Start Time:</label>

@@ -1,4 +1,3 @@
-const express = require('express'); 
 const User = require('../models/User');
 const Shop = require('../models/Shop');
 const Booking = require('../models/Booking');
@@ -6,10 +5,6 @@ const Sport = require('../models/Sport');
 const Query = require('../models/Query');
 const State = require('../models/State');
 const City= require('../models/City');
-const fs=require('fs');
-const path=require('path');
-const redis = require('../config/redisClient');
-
 
 const displaydetails = async (req, res) => {
     try {
