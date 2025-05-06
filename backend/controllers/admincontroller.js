@@ -40,10 +40,7 @@ const displaydetails = async (req, res) => {
             }
         });
 
-        const responseData = { users, shops, queries };
-
-        await redis.set(cacheKey, JSON.stringify(responseData), 'EX', 3600);
-        return responseData;
+        return { users, shops, queries };
 
     } catch (err) {
         console.error("❌ Error retrieving data:", err);
